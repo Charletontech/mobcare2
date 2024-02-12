@@ -1,0 +1,145 @@
+        *{
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    box-sizing: border-box;
+}
+
+.mainCont{
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.mainCont img{
+    width: 140%;
+}
+
+
+
+.icon{
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 14rem;
+    height: 5rem;
+    border-radius: 10px;
+    overflow: hidden;
+    padding: 0px;
+}
+
+
+.btn{
+    position: absolute;
+    bottom: 2rem;
+    margin: auto;
+    display: block;
+    width: 100%;
+}
+
+.btn button{
+    transform: scale(1.1);
+    width: auto;
+    height: auto;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 30px;
+    margin: auto;
+    display: block;
+    font-size: 1.2em;
+    transition: ease 0.5s;
+}
+
+.btn button:nth-child(1){
+    background: transparent;
+    color: white;
+    border-image-slice: 1;
+    border: 1px solid #00a24a;
+
+}
+
+.btn button:nth-child(1):hover{
+    transition: ease 0.5s;
+    color: white;
+    background-image: linear-gradient(to bottom, #046599, #00a24a);
+}
+
+
+.btn button:nth-child(2){
+    margin-top: 1.2rem;
+    color: white;
+    background-image: linear-gradient(to bottom, #046599, #00a24a);
+}
+
+.btn button:nth-child(2):hover{
+    transition: ease 0.5s;
+    background: transparent;
+    color: white;
+    border-image-slice: 1;
+    border: 1px solid #00a24a;
+}
+
+
+
+/* styling the form */
+
+.formCont{
+    position: absolute;
+    width: 80%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 8px;
+    border: 1px solid white;
+    border-radius: 10px;
+    color: white;
+    height: 60%;
+    overflow: scroll;
+}
+
+.formCont p{
+    cursor: pointer;
+}
+
+
+
+@media(min-width: 720px){
+    .icon h1{
+        font-size: 5em;
+    }
+
+    .mainCont img{
+        width: 100%;
+    }
+
+    .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50%;
+        top: 80%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .btn button:nth-child(2){
+        margin-top: 0;
+        transform: translateY(1.4rem);
+    }
+
+    .btn button{
+        transform: scale(1);
+        padding: 8px 16px;
+        font-size: 1.1em;
+    }
+
+    .formCont{
+        max-width: 40%;
+        overflow: hidden;
+        height: 60%;
+        padding: 12px;
+    }
+    
+}

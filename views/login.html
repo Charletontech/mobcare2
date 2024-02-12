@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="css/bootstrap-5.3.2/bootstrap-5.3.2/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="css/login.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Mobcare - Login</title>
+</head>
+<body>
+    <section class="mainCont">
+        <img src="https://res.cloudinary.com/dbfue99qr/image/upload/v1705145410/Mobcare/apart1_gmij2h.jpg"  height="100%" style="filter: brightness(0.7);"  alt="">
+        <div class="overlay">
+            <div class="icon" >
+                <h1 style="color: white; text-align: center; font-size: 3em;">MobCare</h1>
+            </div>
+
+            <div class="btn">
+                <button  onclick="showCustomer()">Login as Customer</button>
+                <button onclick="showAgent()">Login as Agent</button>
+            </div>
+        </div>  
+    </section>
+
+    <script src="css/bootstrap-5.3.2/bootstrap-5.3.2/dist/js/bootstrap.min.js">
+    </script>
+    <script>
+        var overlay = document.querySelector('.overlay')
+
+        overlay.style.transition = '0.5s all'
+
+        function showAgent() {
+            overlay.innerHTML = ``;
+            overlay.innerHTML = `
+            <div class="formCont">
+                <p style="text-align: right;" onclick="back()">Back</p>
+                <form action="" method="post">
+                    <h1 style="color: white; text-align: center; font-size: 3em;">MobCare</h1>
+                    <h3 style="color: white; text-align: center; font-size: 1.5em;">Agent Login</h3>
+                    
+                    <div class="mb-3">
+                        <label for="exampleInputEmail1" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" style="background-color: transparent; color: white; border: 1px solid #00a24a;">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" name="password"  class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" style="background-color: transparent; color: white; border: 1px solid #00a24a;">
+                        <div id="emailHelp" class="form-text" style="color: white;">Never share your password with anyone else.</div>
+                    </div>
+                    <button type="submit" style="margin: 2rem auto; display: block; padding: 8px 16px; border: none; border-radius: 20px;">Login<span class="glyphicon glyphicon-arrow-right"></span></button>
+                     
+                </form>
+            </div>
+            
+            `
+        }
+
+
+
+        function showCustomer() {
+            overlay.innerHTML = ``;
+            overlay.innerHTML = `
+            <div class="formCont">
+                <p style="text-align: right;" onclick="back()">Back</p>
+                <form action="" method="post">
+                    <h1 style="color: white; text-align: center; font-size: 3em;">MobCare</h1>
+                    <h3 style="color: white; text-align: center; font-size: 1.5em;">Customer Form</h3>
+        
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <input type="tel" name="phone" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" style="background-color: transparent; color: white; border: 1px solid #00a24a;">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="text" name="password" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" style="background-color: transparent; color: white; border: 1px solid #00a24a;">
+                    </div>
+
+                    <button type="submit" style="margin: 2rem auto; display: block; padding: 8px 16px; border: none; border-radius: 20px;">Submit <span class="glyphicon glyphicon-arrow-right"></span></button>
+                     
+                </form>
+            </div>
+            `
+        }
+
+
+        function back() {
+            overlay.innerHTML = ``;
+            overlay.innerHTML = `
+            <div class="icon" >
+                <h1 style="color: white; text-align: center; font-size: 3em;">MobCare</h1>
+            </div>
+
+            <div class="btn">
+                <button class="customerBtn"   onclick="showCustomer()">Login as Customer</button>
+                <button class="agentBtn" onclick="showAgent()">Login as Agent</button>
+            </div>
+
+            `
+        }
+    </script>
+</body>
+</html>
+
