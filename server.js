@@ -15,7 +15,7 @@ app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true })); // Use bodyParser to parse form data
 app.use(cookieParser());
-
+app.use(bodyParser.json());
 
 app.use(session({
   secret: 'mysecret', 
@@ -25,6 +25,15 @@ app.use(session({
     sameSite:'lax'
   }
 }));
+
+// const connection = mysql.createConnection({
+//       host: 'localhost',
+//       user: 'root',
+//       password: "",
+//       port: 3306,
+//       database: "mobcare"
+//     });
+
 
 const connection = mysql.createConnection({
   host: 'db4free.net',
@@ -42,14 +51,20 @@ app.get('/db-setup', (req, res) => {
       console.log('connected to database ' +  connection.threadId) 
   })
 
+  
+  // var sql = 'CREATE DATABASE IF NOT EXISTS mobcare' ;
+  // connection.query(sql, (err, result) => { 
+  //   if (err) throw err
+  //     console.log('result:', result)
+  // })
     
-  var sql = 'CREATE TABLE IF NOT EXISTS customers (id INT AUTO_INCREMENT PRIMARY KEY,  accountNumber int(20), firstName VARCHAR(255), middleName VARCHAR(255), lastName VARCHAR(255), gender VARCHAR(255),  dob VARCHAR(255), email VARCHAR(255),  phoneNumber VARCHAR(255), password VARCHAR(255), phoneWorth VARCHAR(255), phoneModel VARCHAR(255), phoneBrand VARCHAR(255), phoneColor VARCHAR(255), address VARCHAR(255), plan VARCHAR(255), referrer VARCHAR(255) )' ;
+  var sql = 'CREATE TABLE IF NOT EXISTS customers (id INT AUTO_INCREMENT PRIMARY KEY,  accountNumber VARCHAR(20), firstName VARCHAR(255), middleName VARCHAR(255), lastName VARCHAR(255), gender VARCHAR(255),  dob VARCHAR(255), email VARCHAR(255),  phoneNumber VARCHAR(255), password VARCHAR(255), phoneWorth VARCHAR(255), phoneModel VARCHAR(255), phoneBrand VARCHAR(255), phoneColor VARCHAR(255), address VARCHAR(255), plan VARCHAR(255), referrer VARCHAR(255) )' ;
   connection.query(sql, (err, result) => { 
     if (err) throw err
       console.log('result:', result)
   })
 
-  var sql = 'CREATE TABLE IF NOT EXISTS plans_table (id INT AUTO_INCREMENT PRIMARY KEY, user VARCHAR(255), balance int(255),  plan1 VARCHAR(20), plan2 VARCHAR(20), numberOfPlans int(20), lastMonthSubscribed1 VARCHAR(255), lastMonthSubscribed2 VARCHAR(255), request VARCHAR(255) )'
+  var sql = 'CREATE TABLE IF NOT EXISTS plans_table (id INT AUTO_INCREMENT PRIMARY KEY, user VARCHAR(255), balance VARCHAR(255),  plan1 VARCHAR(20), plan2 VARCHAR(20), numberOfPlans int(20), lastMonthSubscribed1 VARCHAR(255), lastMonthSubscribed2 VARCHAR(255), request VARCHAR(255) )'
   connection.query(sql, (err, result) => { 
     if (err) throw err
       console.log('result:', result)
@@ -251,8 +266,8 @@ app.post('/customer-signup', (req, res) => {
       if (err) throw err
     })
 
-    var sql = "INSERT INTO plans_table (user, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2) VALUES (?, ?, ?, ?, ?, ?)";
-    var values = [phone, 0, plan, "Nil", 1, "Nil", "Nil"]
+    var sql = "INSERT INTO plans_table (user, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, request) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    var values = [phone, 0, plan, "Nil", 1, "Nil", "Nil", 0]
     connection.query(sql, values, (err, result2) => {
       if (err) throw err
     })
@@ -404,7 +419,7 @@ app.post('/customer-signup', (req, res) => {
    connection.query('SELECT * FROM customers', (err, results) => {
      if (err) throw err;
      const user = results.find((result) => {
-       return result.phoneNumber === phone && result.password == password;
+       return result.phoneNumber == phone && result.password == hashedPassword;
       });
       if (user) {
         // console.log(user);
@@ -422,7 +437,7 @@ app.post('/customer-signup', (req, res) => {
           // }else{
           //   res.render('badCredentials')
           //  }
-         res.render('badCredentials')
+         res.send('Bad Credentials: wrong email or password')
 
         } 
    })
@@ -445,7 +460,22 @@ app.get('/dashboard', (req, res) => {
     var  lastMonthSubscribed1 = results[0].lastMonthSubscribed1;
     var  lastMonthSubscribed2 = results[0].lastMonthSubscribed2;
     
-   res.render('customerDashboard', {phoneNumber, accountNumber, firstName, lastName, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2})
+    //querying for appointments
+    connection.query(`SELECT * FROM  appointments_table WHERE user = ${phoneNumber}`, (err, results2) => {
+      var message = '';
+      if (err) {
+          console.error(err);
+      } else {
+          if (results2.length === 0) {
+            message = 'You have no appointments yet.'
+              res.render('customerDashboard', {phoneNumber, accountNumber, firstName, lastName, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, message})
+          } else {
+              console.log('Matching results found:', results2);
+          }
+      }
+  });
+  
+
   })
 })
 
@@ -460,9 +490,131 @@ app.post('/fix-appointment', (req, res) => {
 })
 
 
-app.get('/request-claim', (req, res) => {
-  
+app.post('/request-claim', (req, res) => {
+  var phone = req.body.phone
+  var sql = `UPDATE plans_table SET request = '1' WHERE user = ${phone}`;
+  connection.query(sql, (err, result) => {
+    if (err) throw err
+    res.sendStatus(200);
+  })
 })
+
+app.post('/add-plan', (req, res) => {
+  var {acctNo, planToAdd} = req.body;
+
+  var sql = `UPDATE plans_table SET numberOfPlans = '2', plan2 = '${planToAdd}' WHERE user = ${acctNo}`
+  connection.query(sql, (err, result) => {
+    if (err) throw err
+    res.sendStatus(200)
+  })
+ })
+
+app.post('/fund-wallet', (req, res) => {
+  let acctId = req.body.acctNo
+
+  tokenGenerator()
+  function tokenGenerator() {
+    var tokenData = '';
+    var logonRequestData = JSON.stringify({
+      "clientKey": `${process.env.CLIENT_KEY}`,
+      "clientSecret": `${process.env.CLIENT_SECRET}`,
+      "clientId": `${process.env.CLIENT_ID}`,
+      "rememberMe": true
+    })
+  
+    var logonRequestOptions = {
+      hostname: '196.46.20.83',
+      port: 3021,
+      path: '/clients/v1/auth/_login',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': logonRequestData.length,
+      },
+    };
+
+    const logonHttpSender = http.request(logonRequestOptions, (response) =>{
+      let = recievedLogonData = ''
+
+      response.on('data', (chunk) => {
+        recievedLogonData += chunk;
+      });
+    
+      response.on('end', () => {
+        var parsedRecievedLogonData = JSON.parse(recievedLogonData);
+        tokenData = parsedRecievedLogonData.token
+        //console.log(tokenData);
+        balanceChecker(tokenData)
+      })
+    })
+
+    logonHttpSender.on('error', (error) => {
+      console.error('Error in HTTP request:', error.message);
+      var errorMessage = error.message
+      //res.render('notify', {errorMessage, message: 'Not Successful'})
+    });
+  
+    logonHttpSender.write(logonRequestData);
+    logonHttpSender.end();
+  }
+
+
+  function balanceChecker(token) {
+
+const urldata = {
+   host: '196.46.20.76',
+   path: `/clients/v1/accounts/${acctId}/_balance`,
+   port: 3021,
+   method: 'GET',
+   headers: {
+       'Authorization': `Bearer ${token}`
+   }
+};
+
+function OnResponse(response) { 
+    let data = ''; // This will store the page we're downloading.
+    response.on('data', function(chunk) { // Executed whenever a chunk is received.
+        data += chunk; // Append each chunk to the data variable.
+    });
+
+    response.on('end', function() {
+        console.log(data);
+    });
+}
+
+
+   
+    http.request(urldata, OnResponse).end();
+  //   const options = {
+  //     hostname: '196.46.20.76',
+  //     port: 3021,
+  //     path: `/clients/v1/accounts/${acctId}/_balance`,
+  //     method: 'GET',
+  //     headers: {
+  //       'Authorization': `Bearer ${token}`
+  //     }
+  //   };
+  
+  //   const req = http.request(options, (res) => {
+  //     let data = '';
+  
+  //     res.on('data', (chunk) => {
+  //       data += chunk;
+  //     });
+  
+  //     res.on('end', () => {
+  //       console.log(data); // Here you can handle the response data
+  //     });
+  //   });
+  
+  //   req.on('error', (error) => {
+  //     console.error('Error:', error);
+  //   });
+  
+  //   req.end();
+  }
+})
+
 
 app.post('/test', (req, res) => {
   //PROCESSING DATA FROM FORM
