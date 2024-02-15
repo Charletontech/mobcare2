@@ -4,6 +4,7 @@
     text-decoration: none;
     list-style: none;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
 :root{
@@ -33,16 +34,75 @@ nav h3{
 }
 
 nav aside{
-    width: 7rem;
+    /* width: 7rem;
     display: flex;
     align-items: center;
     gap: 12px;
+     */
+}
+
+nav aside span{
+    position: relative;
+}
+
+nav aside span ul{
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: auto;
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.87);
+    color: white;
+    padding: 8px;
+    z-index: -9;
+    opacity: 0;
+    height: auto;
+    overflow: hidden;
+    transition: all .2s;
+}
+
+.showMenu{
+    z-index: 4;
+    opacity: 1;
+}
+
+nav aside span ul li{
+    text-align: left;
+    font-size: 1.3em;
+    margin: 5px;
 }
 
 nav aside img{
     width: 3rem;
     height: 3rem;
+    margin-right: 1rem;
 }
+
+
+/* Tooltip container */
+.tooltip {
+    position: absolute;
+    bottom: -4rem; /* Adjust as needed */
+    left: 0;
+    background-color: white;
+    padding: 0.5rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: none;
+}
+
+/* Tooltip arrow */
+.tooltip::before {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    border: solid transparent;
+    border-width: 6px;
+    border-top-color: white;
+    transform: translateX(-50%);
+}
+
 
 
 /* modal */
@@ -64,7 +124,7 @@ nav aside img{
     position: absolute;
     padding: 2rem;
     padding-top: 4rem;
-    width: 75%;
+    width: 80%;
     background-color: white;
     top: 30%;
     left: 50%;
@@ -139,7 +199,7 @@ nav aside img{
     box-shadow: 2px 2px 16px 3px rgb(216, 216, 216);
     border-radius: 6px;
     width: 90%;
-    height: 20rem;
+    height: 24rem;
     background-color: white;
     padding: 12px;
 }
@@ -170,7 +230,7 @@ nav aside img{
 }
 
 .box img{
-    margin: 3.5rem auto 2rem;
+    margin: 5rem auto 2rem;
     display: block;
     width: 8rem;
     height: 8rem;
