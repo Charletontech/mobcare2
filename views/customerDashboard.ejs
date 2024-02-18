@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link href="https://fonts.googleapis.com/css2?family=Lemon&family=Nunito:wght@300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap-3.4.1-dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/customerDashboard.css">
@@ -37,7 +38,7 @@
                   <li style="color: #046599;  margin-bottom: .4rem; text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3)"><b>Hope PSB</b></li>
                 </ul>
 
-                <button class="btn btn-success" onclick="fundWalletReq()">Complete Payment</button>
+                <button class="completeBtn btn btn-success" onclick="fundWalletReq()">Complete Payment</button>
                 <br>
 
                 <b style="color: rgb(83, 75, 75);">Instruction:</b>
@@ -77,6 +78,168 @@
         </div>
     </section>
 
+    <!-- modal for subscriptions -->
+    <section class="popUp" id="subscriptionModal">
+    <b style="text-align: right; margin-left: 78%;" class="back" onclick="hidePopUp(subscriptionModal)"><i class="glyphicon glyphicon-chevron-left"></i> Back</b>
+    <div class="popUpBox" id="sub-modal">
+        <h2>Paid Subscriptions</h2>
+        <% if (typeof repairPlanResult === 'undefined') { %>
+            <p>You are Subscribed to only Theft Plan</p>
+        <% } else { %>
+            <h4 style="text-align: center; font-weight: bold;"><b>Repair Plan</b></h4>
+            <div class="tableCont">
+                <table class="table table-striped">
+                    <thead>
+                        <tr class="bg bg-primary">
+                            <th>Month</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr>
+                                <td>January</td>
+                                <td><%= repairPlanResult.January %></td>
+                            </tr>
+                            <tr>
+                                <td>February</td>
+                                <td><%= repairPlanResult.February %></td>
+                            </tr>
+                            <tr>
+                                <td>March</td>
+                                <td><%= repairPlanResult.March %></td>
+                            </tr>
+                            <tr>
+                                <td>April</td>
+                                <td><%= repairPlanResult.April %></td>
+                            </tr>
+                            <tr>
+                                <td>May</td>
+                                <td><%= repairPlanResult.May %></td>
+                            </tr>
+                            <tr>
+                                <td>June</td>
+                                <td><%= repairPlanResult.June %></td>
+                            </tr>
+                    </tbody>
+                </table>
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr class="bg bg-primary">
+                            <th>Month</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr>
+                                <td>July</td>
+                                <td><%= repairPlanResult.July %></td>
+                            </tr>
+                            <tr>
+                                <td>August</td>
+                                <td><%= repairPlanResult.August %></td>
+                            </tr>
+                            <tr>
+                                <td>September</td>
+                                <td><%= repairPlanResult.September %></td>
+                            </tr>
+                            <tr>
+                                <td>October</td>
+                                <td><%= repairPlanResult.October %></td>
+                            </tr>
+                            <tr>
+                                <td>November</td>
+                                <td><%= repairPlanResult.November %></td>
+                            </tr>
+                            <tr>
+                                <td>December</td>
+                                <td><%= repairPlanResult.December %></td>
+                            </tr>
+                    </tbody>
+                </table>
+            </div>
+        <% } %>
+
+        <% if (typeof theftPlanResult === 'undefined') { %>
+            <p>You are Subscribed to only Repair Plan</p>
+        <% } else { %>
+            <h4 style="text-align: center; font-weight: bold;"><b>Theft Plan</b></h4>
+            <div class="tableCont">
+                <table class="table table-striped">
+                    <thead>
+                        <tr class="bg bg-primary">
+                            <th>Month</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr>
+                                <td>January</td>
+                                <td><%= theftPlanResult.January %></td>
+                            </tr>
+                            <tr>
+                                <td>February</td>
+                                <td><%= theftPlanResult.February %></td>
+                            </tr>
+                            <tr>
+                                <td>March</td>
+                                <td><%= theftPlanResult.March %></td>
+                            </tr>
+                            <tr>
+                                <td>April</td>
+                                <td><%= theftPlanResult.April %></td>
+                            </tr>
+                            <tr>
+                                <td>May</td>
+                                <td><%= theftPlanResult.May %></td>
+                            </tr>
+                            <tr>
+                                <td>June</td>
+                                <td><%= theftPlanResult.June %></td>
+                            </tr>
+                    </tbody>
+                </table>
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr class="bg bg-primary">
+                            <th>Month</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr>
+                                <td>July</td>
+                                <td><%= theftPlanResult.July %></td>
+                            </tr>
+                            <tr>
+                                <td>August</td>
+                                <td><%= theftPlanResult.August %></td>
+                            </tr>
+                            <tr>
+                                <td>September</td>
+                                <td><%= theftPlanResult.September %></td>
+                            </tr>
+                            <tr>
+                                <td>October</td>
+                                <td><%= theftPlanResult.October %></td>
+                            </tr>
+                            <tr>
+                                <td>November</td>
+                                <td><%= theftPlanResult.November %></td>
+                            </tr>
+                            <tr>
+                                <td>December</td>
+                                <td><%= theftPlanResult.December %></td>
+                            </tr>
+                    </tbody>
+                </table>
+            </div>
+        <% } %>
+        
+    </div>
+</section>
+
     <!-- placeholder for phone number -->
     <p class="phone" style="display: none;"><%= phoneNumber %></p>
 
@@ -103,10 +266,7 @@
                         <p>Subscribed Plan:</p>
                         <b class="currentPlan"><%= plan1 %></b>
                     </div>
-                    <div>
-                        <p>Last Month Paid:</p>
-                        <b><%= lastMonthSubscribed1 %></b>
-                    </div>
+                    
                     <div>
                         <!-- Add Plan + button with custom tooltip -->
                         <button type="button"  id="addPlanBtn">Add Plan +</button>
@@ -114,29 +274,13 @@
                     </div>
                 </div>
         <% } else { %>
-                <div class="planText">
-                    <div>
-                        <p>Subscribed Plan:</p>
-                        <b class="currentPlan"><%= plan1 %></b>
+                <div class="planText" style="align-items: center; justify-content: center;">
+                    <div style="text-align: center;">
+                        <p style="margin: .5rem;">Subscribed Plans:</p>
+                        <b class="currentPlan" style="margin: .5rem;"><%= plan1 %></b>
+                        <br>
+                        <b class="currentPlan" style="margin: .5rem;"><%= plan2 %></b>
                     </div>
-                    <div>
-                        <p>Last Month Paid:</p>
-                        <b><%= lastMonthSubscribed1 %></b>
-                    </div>
-                    <div></div>
-                </div>
-
-                <div class="planText">
-                    <div>
-                        <p>Subscribed Plan:</p>
-                        <b class="currentPlan"><%= plan2 %></b>
-                    </div>
-                    <div>
-                        <p>Last Month Paid:</p>
-                        <b><%= lastMonthSubscribed2 %></b>
-                    </div>
-                    <!-- Add Plan + button with custom tooltip -->
-                    <div></div>
                 </div>
         <% } %>
            
@@ -157,6 +301,10 @@
             <h2>Appointments</h2>
             <p style="text-align: center;"> <%= message %> </p>
         </div>
+        <div class="box others" onclick="showPopUp(subscriptionModal)">
+            <p> <span class="glyphicon glyphicon-check"></span></p>
+            <h2>Subscriptions</h2>
+        </div>
     </section>
     <script src="css/bootstrap-3.4.1-dist/js/npm.js"></script>
     <script>
@@ -170,17 +318,36 @@
         const RC_popUp = document.getElementById('RC-popUp');
         const sendClaimReq = document.getElementById('sendClaimReq');
         const phone = document.querySelector('.phone').innerText;
-        
+        const subscriptionModal = document.getElementById('subscriptionModal')
 
 
 
+        //logic to show menu
         function showMenu() {
             var menu = document.querySelector('.menu')
             menu.classList.toggle('showMenu')
         }
         
-        
+        //logic to input icons in table
+        function inputIcon() {
+            var trElements = document.getElementsByTagName("tr");
+            // Loop through each <tr> element
+            for (var i = 0; i < trElements.length; i++) {
+                // Get the second child element of each <tr> (index 1)
+                var statusField = trElements[i].children[1].innerHTML.trim();
+                if (statusField === 'Enabled') {
+                    statusField = `<span class="glyphicon glyphicon-ok"  style="color: green;"></span>`;
+                } else if (statusField === 'Disabled') {
+                    statusField = `<span class="glyphicon glyphicon-remove" style="color: red;"></span>`;
+                }
+                // Set the innerHTML of the second child element
+                trElements[i].children[1].innerHTML = statusField;
+            }
+        }
+        inputIcon();
 
+
+        
 
         //add plan logic
         tooltip.addEventListener('click', function () {
@@ -268,16 +435,21 @@
 
 
         //logic for creating local storage
-        function createCache() {
-            const acctNo = document.getElementById('acctNo').innerText;
-            localStorage.setItem('acctId', acctNo)
-        }
-        createCache();
+        // function createCache() {
+        //     const acctNo = document.getElementById('acctNo').innerText;
+        //     localStorage.setItem('acctId', acctNo)
+        // }
+        // createCache();
         
         //LOGIC FOR FUND WALLET
         function fundWalletReq() {
-            var data = {acctNo: localStorage.getItem('acctId')}
-
+            const acctNo = document.getElementById('acctNo').innerText;
+            var completeBtn = document.querySelector('.completeBtn')
+            var data = {acctNo: acctNo,
+                        phone: phone
+            }
+            completeBtn.disabled = true
+            completeBtn.innerHTML = 'Please Wait...'
             var fetchOptions = {
                 method: 'POST',
                 headers: new Headers({
@@ -287,15 +459,46 @@
             }
 
             fetch('/fund-wallet', fetchOptions)
-            .then(res => {
-                if (res.ok) console.log('successful')
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    completeBtn.innerHTML = 'Payment Failed';
+                }
+            })
+            .then(data => {
+                completeBtn.disabled = false;
+                completeBtn.innerHTML = data.message;
+                alert('Payment Successful')
             })
             .catch(err => {
                 console.error('Error: ', err)
+                completeBtn.innerHTML = "Payment Failed";
             })
         }
 
+        //LOGIC TO RENEW PLAN
+        var showRenew = document.querySelector('.showRenew')
+        var renew = document.querySelector('.renew')
+        showRenew.addEventListener('click', function () {
+            renew.classList.toggle('showRenewBtn')
+        })
 
+        renew.addEventListener('click', function () {
+          var lastMonthPaid = showRenew.innerText;
+          var data = {
+                lastMonthPaid: lastMonthPaid,
+                 phone: phone   
+            }
+          var options = {
+            method: 'POST',
+            headers: new Headers({
+                    'Content-Type': 'application/json; charset=UTF-8'
+                }),
+                body: JSON.stringify(data)
+          }
+          fetch('/renew-subscription', options)
+        })
     </script>
 </body>
 </html>
