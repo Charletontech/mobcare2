@@ -50,13 +50,6 @@ app.get('/db-setup', (req, res) => {
     if (err) throw err
       console.log('connected to database ' +  connection.threadId) 
   })
-
-  
-  // var sql = 'CREATE DATABASE IF NOT EXISTS mobcare' ;
-  // connection.query(sql, (err, result) => { 
-  //   if (err) throw err
-  //     console.log('result:', result)
-  // })
     
   var sql = 'CREATE TABLE IF NOT EXISTS customers (id INT AUTO_INCREMENT PRIMARY KEY,  accountNumber VARCHAR(20), firstName VARCHAR(255), middleName VARCHAR(255), lastName VARCHAR(255), gender VARCHAR(255),  dob VARCHAR(255), email VARCHAR(255),  phoneNumber VARCHAR(255), password VARCHAR(255), phoneWorth VARCHAR(255), phoneModel VARCHAR(255), phoneBrand VARCHAR(255), phoneColor VARCHAR(255), address VARCHAR(255), plan VARCHAR(255), referrer VARCHAR(255) )' ;
   connection.query(sql, (err, result) => { 
@@ -71,6 +64,18 @@ app.get('/db-setup', (req, res) => {
   })
 
   var sql = 'CREATE TABLE IF NOT EXISTS appointments_table (id INT AUTO_INCREMENT PRIMARY KEY, user VARCHAR(255),  date VARCHAR(20), status VARCHAR(20))'
+  connection.query(sql, (err, result) => { 
+    if (err) throw err
+      console.log('result:', result)
+  })
+
+  var sql = 'CREATE TABLE IF NOT EXISTS repair_subscriptions (id INT AUTO_INCREMENT PRIMARY KEY, user VARCHAR(255),  January VARCHAR(20), February VARCHAR(20), March VARCHAR(20), April VARCHAR(20), May VARCHAR(20), June VARCHAR(20), July VARCHAR(20), August VARCHAR(20), September VARCHAR(20), October VARCHAR(20), November VARCHAR(20), December VARCHAR(20))'
+  connection.query(sql, (err, result) => { 
+    if (err) throw err
+      console.log('result:', result)
+  })
+
+  var sql = 'CREATE TABLE IF NOT EXISTS theft_subscriptions (id INT AUTO_INCREMENT PRIMARY KEY, user VARCHAR(255),  January VARCHAR(20), February VARCHAR(20), March VARCHAR(20), April VARCHAR(20), May VARCHAR(20), June VARCHAR(20), July VARCHAR(20), August VARCHAR(20), September VARCHAR(20), October VARCHAR(20), November VARCHAR(20), December VARCHAR(20))'
   connection.query(sql, (err, result) => { 
     if (err) throw err
       console.log('result:', result)
@@ -108,21 +113,18 @@ app.get('/subscription', (req, res) => {
   res.sendFile(filePath);
 });
 
-// app.get('/customer', (req, res) => {
-//   check(prod())
-//   function prod(params) {
-//     var prod = 'why'
-//     return prod
-//   }
-//   function check(a) {
-//     console.log(a);
-//   }
-// })
 
 app.post('/customer-signup', (req, res) => {
   //PROCESSING DATA FROM FORM
   var {firstName, middleName, lastName, email, dob, gender, phone, model, referrer, brand, color, worth, plan, address} = req.body
   
+  //Logic to capitalize plan
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  plan = capitalize(plan)
+
+
   //logic to convert date to required format
   function convertDate(inputDate) {
     // Parse the input date (assuming yyyy-mm-dd format)
@@ -271,6 +273,20 @@ app.post('/customer-signup', (req, res) => {
     connection.query(sql, values, (err, result2) => {
       if (err) throw err
     })
+
+    if (plan == 'repair') {
+      var sql = `INSERT INTO repair_subscriptions (user, January, February, March, April, May, June, July, August, September, October, November, December) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      var values = [phone, "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled"]; 
+      connection.query(sql, values, (err, result) => { 
+        if (err) throw err;
+      });    
+    } else {
+      var sql = `INSERT INTO theft_subscriptions (user, January, February, March, April, May, June, July, August, September, October, November, December) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      var values = [phone, "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled"]; 
+      connection.query(sql, values, (err, result) => { 
+        if (err) throw err;
+      });    
+    }
 
     var fullName = firstName + " " + middleName + " " + lastName
     res.render('notify', {fullName, acctNoParam})
@@ -437,7 +453,7 @@ app.post('/customer-signup', (req, res) => {
           // }else{
           //   res.render('badCredentials')
           //  }
-         res.send('Bad Credentials: wrong email or password')
+         res.send('Bad Credentials: Wrong email or Password')
 
         } 
    })
@@ -468,17 +484,28 @@ app.get('/dashboard', (req, res) => {
       } else {
           if (results2.length === 0) {
             message = 'You have no appointments yet.'
-              res.render('customerDashboard', {phoneNumber, accountNumber, firstName, lastName, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, message})
+            subscriptionChecker(phoneNumber, accountNumber, firstName, lastName, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, message)
           } else {
-              console.log('Matching results found:', results2);
           }
       }
   });
-  
 
+  function subscriptionChecker(phoneNumber, accountNumber, firstName, lastName, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, message) {
+    var sql = `SELECT * FROM repair_subscriptions where user = '${phoneNumber}'`
+    connection.query(sql, (err, repairPlanResult1) => {
+      if (err) throw err
+      var sql = `SELECT * FROM theft_subscriptions where user = '${phoneNumber}'`
+      connection.query(sql, (err, theftPlanResult1) => {
+        if (err) throw err
+        var repairPlanResult = repairPlanResult1[0]
+        var theftPlanResult = theftPlanResult1[0]
+      
+       res.render('customerDashboard', {phoneNumber, accountNumber, firstName, lastName, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, message, repairPlanResult, theftPlanResult})
+      })
+    })
+  }
   })
 })
-
 
 app.post('/fix-appointment', (req, res) => {
   var sql = "INSERT INTO appointments_table  (user, date, status) VALUES (?, ?, ?)";
@@ -507,11 +534,25 @@ app.post('/add-plan', (req, res) => {
     if (err) throw err
     res.sendStatus(200)
   })
- })
+
+  if (planToAdd == 'Repair') {
+    var sql = `INSERT INTO repair_subscriptions (user, January, February, March, April, May, June, July, August, September, October, November, December) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    var values = [acctNo, "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled"]; 
+    connection.query(sql, values, (err, result) => { 
+      if (err) throw err;
+    });    
+  } else {
+    var sql = `INSERT INTO theft_subscriptions (user, January, February, March, April, May, June, July, August, September, October, November, December) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    var values = [acctNo, "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled"];
+    connection.query(sql, values, (err, result) => { 
+      if (err) throw err;
+    });
+  }
+})
 
 app.post('/fund-wallet', (req, res) => {
   let acctId = req.body.acctNo
-
+  let phone = req.body.phone
   tokenGenerator()
   function tokenGenerator() {
     var tokenData = '';
@@ -543,7 +584,6 @@ app.post('/fund-wallet', (req, res) => {
       response.on('end', () => {
         var parsedRecievedLogonData = JSON.parse(recievedLogonData);
         tokenData = parsedRecievedLogonData.token
-        //console.log(tokenData);
         balanceChecker(tokenData)
       })
     })
@@ -551,7 +591,6 @@ app.post('/fund-wallet', (req, res) => {
     logonHttpSender.on('error', (error) => {
       console.error('Error in HTTP request:', error.message);
       var errorMessage = error.message
-      //res.render('notify', {errorMessage, message: 'Not Successful'})
     });
   
     logonHttpSender.write(logonRequestData);
@@ -561,339 +600,104 @@ app.post('/fund-wallet', (req, res) => {
 
   function balanceChecker(token) {
 
-const urldata = {
-   host: '196.46.20.76',
-   path: `/clients/v1/accounts/${acctId}/_balance`,
-   port: 3021,
-   method: 'GET',
-   headers: {
-       'Authorization': `Bearer ${token}`
-   }
-};
-
-function OnResponse(response) { 
-    let data = ''; // This will store the page we're downloading.
-    response.on('data', function(chunk) { // Executed whenever a chunk is received.
-        data += chunk; // Append each chunk to the data variable.
-    });
-
-    response.on('end', function() {
-        console.log(data);
-    });
-}
-
-
-   
-    http.request(urldata, OnResponse).end();
-  //   const options = {
-  //     hostname: '196.46.20.76',
-  //     port: 3021,
-  //     path: `/clients/v1/accounts/${acctId}/_balance`,
-  //     method: 'GET',
-  //     headers: {
-  //       'Authorization': `Bearer ${token}`
-  //     }
-  //   };
-  
-  //   const req = http.request(options, (res) => {
-  //     let data = '';
-  
-  //     res.on('data', (chunk) => {
-  //       data += chunk;
-  //     });
-  
-  //     res.on('end', () => {
-  //       console.log(data); // Here you can handle the response data
-  //     });
-  //   });
-  
-  //   req.on('error', (error) => {
-  //     console.error('Error:', error);
-  //   });
-  
-  //   req.end();
-  }
-})
-
-
-app.post('/test', (req, res) => {
-  //PROCESSING DATA FROM FORM
-  var {firstName, middleName, lastName, email, password, dob, gender, phone, model, referrer, brand, color, worth, plan, address} = req.body
-  console.log(req.body);
-  // //LOGIC TO CHECK IF PHONE NUMBER OR EMAIL ALREADY EXISTS
-  // var sql = `SELECT * FROM customers`
-  // connection.query(sql, (err, result1) => { 
-  //   if (err) throw err
-  //     console.log('result:', result1)
-  //     const user = result1.find((result) => {
-  //       return result.username === username && result.password == hashedPassword;
-  //       });
-  // })
-  
-  
-  
-  //LOGIC TO CONVERT DATE TO REQUIRED FORMAT
-  function convertDate(inputDate) {
-    // Parse the input date (assuming yyyy-mm-dd format)
-    const parsedDate = new Date(inputDate);
-    
-    // Format the date in the desired format (yyyy-mm-ddTHH:mm:ss.sssZ)
-    const formattedDate = parsedDate.toISOString();
-    
-    return formattedDate;
-  }
-  const convertedDate = convertDate(dob);
-
-
-  //LOGIC TO HASH PASSWORD
-  const hash = crypto.createHash('sha256');
-  hash.update(password);
-  const hashedPassword = hash.digest('hex');
-   
-  var formData = {
-    firstName: firstName,
-    middleName: middleName,
-    lastName: lastName,
-    email: email,
-    dob: convertedDate,
-    gender: gender,
-    phone: phone,
-    model: model,
-    referrer: referrer,
-    brand: brand,
-    color: color,
-    worth: worth,
-    plan: plan,
-    address: address
-  }
-
-  
-   //LOGIC TO GENETRATE TOKEN AND LOGON
-  var logonRequestData = JSON.stringify({
-    "clientKey": `${process.env.CLIENT_KEY}`,
-    "clientSecret": `${process.env.CLIENT_SECRET}`,
-    "clientId": `${process.env.CLIENT_ID}`,
-    "rememberMe": true
-  })
-  
-  var logonRequestOptions = {
-    hostname: '196.46.20.83',
+  const urldata = {
+    host: '196.46.20.83',
+    path: `/clients/v1/accounts/${acctId}/_balance`,
     port: 3021,
-    path: '/clients/v1/auth/_login',
-    method: 'POST',
+    method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': logonRequestData.length,
-    },
+        'Authorization': `Bearer ${token}`
+    }
   };
-  const logonHttpSender = http.request(logonRequestOptions, (response) =>{
-    let = recievedLogonData = ''
 
-    response.on('data', (chunk) => {
-      recievedLogonData += chunk;
-    });
+  function OnResponse(response) { 
+      let data = ''; 
+      response.on('data', function(chunk) {
+          data += chunk; 
+      });
+
+      response.on('end', function() {
+        var recievedBalance = JSON.parse(data).balance
+        console.log(recievedBalance);
+        debitBalance(token, recievedBalance, acctId)
+      });
+    }
+    
+    http.request(urldata, OnResponse).end();
+  }
+
   
-    response.on('end', () => {
-      var parsedRecievedLogonData = JSON.parse(recievedLogonData);
-      console.log(parsedRecievedLogonData)
-       //LOGIC TO CREATE BANK WALLET        
-        const walletCreationRequestData = JSON.stringify({
-          phoneNumber: formData.phone,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          middleName: formData.middleName,
-          gender: formData.gender,
-          dateOfBirth: formData.dob,
-          productCode: "214",
-          email: formData.email,
-          type: 1
+
+    function debitBalance(token, receivedBalance, acctId) {
+        // Define the payload
+        const payload = JSON.stringify({
+            "account": acctId, // Assuming acctId is the account number
+            "reference": "001",
+            "amount": 5, // Assuming receivedBalance is the amount to debit
+            "description": "Debit for funding wallet - Mobcare",
+            "channel": "1"
         });
 
-        
-      // Setting up the options for the HTTP request
-        const requestOptions = {
-          hostname: '196.46.20.83',
-          port: 3021,
-          path: '/clients/v1/accounts',
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': walletCreationRequestData.length,
-            'Authorization': `Bearer ${parsedRecievedLogonData.token}`
-          },
+        // Define the request options
+        const options = {
+            hostname: '196.46.20.83',
+            port: 3021,
+            path: '/clients/v1/transactions/_debit',
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(payload) // Calculate the payload length
+            }
         };
-        
-        const httpRequestSender = http.request(requestOptions, (response2) => {
-          let data2 = '';
-        
-          response2.on('data', (chunk) => {
-            data2 += chunk;
-          });
-        
-          response2.on('end', () => {
-            var newAccoutDetails = JSON.parse(data2);
-            console.log(newAccoutDetails);
-            
-          //sending the notification to the user
-            const accountNumber = newAccoutDetails.account
-            var fullName = `${formData.firstName} ${formData.middleName} ${formData.lastName}`
-            res.render('notify', {accountNumber, fullName})
 
-
-          // Mailing sign up details to Admin
-            const transporter = nodemailer.createTransport({
-              host: 'smtp.elasticemail.com',
-              port: 2525, // Make sure port is specified as a number (not a string)
-              secure: false, // Set secure as a boolean
-              auth: {
-                user: 'phoenixdigitalcrest@mail.com',
-                pass: `${process.env.EMAIL_PASS}`,
-              },
+        // Create the HTTP request
+        const req = http.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => {
+                data += chunk;
             });
-
-          
-            //Mail details
-            const mailContent = {
-              from: 'phoenixdigitalcrest@mail.com',
-              to: `adsbyshante@gmail.com`,
-              subject: `New user! ${formData.firstName} ${formData.middleName} ${formData.lastName}`,
-              html: `<!DOCTYPE html>
-              <html lang="en">
-              <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Email Verification</title>
-                <style>
-                  /* Reset styles for email clients */
-                  body, p {
-                    margin: 0;
-                    padding: 0;
-                    font-family: Arial, sans-serif;
-                  }
-              
-                  /* Container */
-                  .container {
-                    background-color: white;
-                    padding: 20px;
-                  }
-              
-                  /* Header */
-                  .header {
-                    background-color: #046599;
-                    color: white;
-                    text-align: center;
-                    padding: 12px 15px; 
-                  }
-              
-                  /* Company Logo */
-                  .logo {
-                    text-align: center;
-                    margin-bottom: 20px;
-                    display: block;
-                    margin: auto;
-                  }
-              
-                  /* Logo Image */
-                  .logo img {
-                    width: 100px; /* Adjust the size as needed */
-                    height: 100px; /* Adjust the size as needed */
-                    border-radius: 50%; /* Makes the logo round */
-                  }
-              
-                  /* Content */
-                  .content {
-                    background-color: white;
-                    padding: 20px;
-                    border-radius: 3px;
-                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                    color: black;
-                    line-height: 1.4rem; 
-                  }
-              
-                  h3{
-                    color:  #00a24a;
-                  }
-
-                  .token{
-                    color: rgb(38, 145, 38);
-                    letter-spacing: 3px;
-                  }
-              
-                  /* Footer */
-                  .footer {
-                    text-align: center;
-                    margin-top: 20px;
-                    color: #777;
-                  }
-                </style>
-              </head>
-              <body>
-                <div class="container">
-                    <div class="logo">
-                    </div>
-                  <div class="header">
-                    
-                    <h1>New User</h1>
-                  </div>
-                  <div class="content">
-                    <p>
-                    <h3>Details:</h3>
-                    <p>Full Name: ${formData.firstName} ${formData.middleName} ${formData.lastName}</p>
-                    <p>Account Number: ${accountNumber}</p>
-                    <p>Phone Number: ${formData.phone}</p>
-                    <p>Phone Model: ${formData.model}</p>
-                    <p>Phone Brand: ${formData.brand}</p>
-                    <p>Phone Color:${formData.color}</p>
-                    <p>Insurance Plan: ${formData.plan}</p>
-                    <p>Customer Address: ${formData.address}</p>
-                    <p>Name Of Referrer: ${formData.referrer}</p>
-                    </p>
-                  </div>
-                  <div class="footer">
-                    <p>Mobcare &copy; 2024 </p>
-                  </div>
-                </div>
-              </body>
-              </html>
-              
-               `
-             }
-
-            //Sending the mail
-            transporter.sendMail(mailContent, (error, info) =>{
-              if (error){
-                console.error('error sending mail', error)
-              }else{
-                console.log('Email sent', info.response)
-               }
-            })
-        
-          });
-       });
-        
-        httpRequestSender.on('error', (error) => {
-          console.error('Error in HTTP request:', error.message);
-          var errorMessage = error.message
-          res.render('notify', {errorMessage, message: 'Not Successful'})
+            res.on('end', () => {
+                console.log(data); // Log the response data
+                var parsedData = JSON.parse(data)
+                console.log(parsedData);
+                responseToClient(parsedData, acctId, receivedBalance)
+            });
         });
+
+        // Handle errors
+        req.on('error', (error) => {
+            console.error('Error:', error);
+        });
+
+        // Send the request with the payload
+        req.write(payload);
+        req.end();
+
+
         
-        httpRequestSender.write(walletCreationRequestData);
-        httpRequestSender.end();
-            
-      })
+    }
 
-  })
-  logonHttpSender.on('error', (error) => {
-    console.error('Error in HTTP request:', error.message);
-    var errorMessage = error.message
-    res.render('notify', {errorMessage, message: 'Not Successful'})
-  });
-
-  logonHttpSender.write(logonRequestData);
-  logonHttpSender.end();
+    var resObj = res;
+    
+    function responseToClient(parsedData, acctId, receivedBalance) {
+      if (parsedData.status == "Approved") {
+        var sql = `UPDATE plans_table SET balance = '${receivedBalance}' WHERE user = ${phone} `;
+        connection.query(sql, (err, result) =>{
+          if (err) throw err;
+        })
+        resObj.status(200)
+        resObj.json({ message: 'Success!', data: { someKey: 'someValue' } })
+      }else{
+        resObj.status(400)
+      }
+    }
 })
 
 
+
+  
+ 
 
 
 app.listen(3000, () => {
