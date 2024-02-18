@@ -5,6 +5,7 @@
     list-style: none;
     box-sizing: border-box;
     cursor: pointer;
+    font-family: Nunito;
 }
 
 :root{
@@ -14,7 +15,7 @@
 }
 
 body{
-    background-color: rgb(233, 233, 233);
+    background-color: rgb(240, 240, 240);
     padding-bottom: 2rem;
 }
 
@@ -31,14 +32,6 @@ nav{
 
 nav h3{
     color: white;
-}
-
-nav aside{
-    /* width: 7rem;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-     */
 }
 
 nav aside span{
@@ -196,7 +189,7 @@ nav aside img{
 }
 
 .box{
-    box-shadow: 2px 2px 16px 3px rgb(216, 216, 216);
+    box-shadow: 0 2px 5px 3px rgb(228, 228, 228);
     border-radius: 6px;
     width: 90%;
     height: 24rem;
@@ -249,10 +242,6 @@ nav aside img{
 .box span{
     text-align: center;
     font-size: 5em;
-    /* margin: auto;
-    display: block;
-    width: 6rem;
-    height: 6rem; */
 }
 
 .box h2{
@@ -315,6 +304,38 @@ nav aside img{
     text-align: center;
 }
 
+.showRenew{
+    position: relative;
+}
+
+.renew{
+    background-color: #333;
+    color: white;
+    position: absolute;
+    padding:8px 5px;
+    border-radius: 5px;
+    width: 9rem;
+    text-align: center;
+    display: none;
+}
+
+.showRenewBtn{
+    display: block;
+}
+
+#sub-modal{
+    width: 95%;
+    overflow-y: auto;
+    height: 80%;
+}
+
+.tableCont{
+    display: flex;
+}
+
+#sub-modal table th{
+    text-align: center;
+}
 
 @media(min-width: 720px){
     .boxCont{
