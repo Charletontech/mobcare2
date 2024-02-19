@@ -274,7 +274,7 @@ app.post('/customer-signup', (req, res) => {
       if (err) throw err
     })
 
-    if (plan == 'repair') {
+    if (plan == 'Repair') {
       var sql = `INSERT INTO repair_subscriptions (user, January, February, March, April, May, June, July, August, September, October, November, December) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
       var values = [phone, "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled"]; 
       connection.query(sql, values, (err, result) => { 
