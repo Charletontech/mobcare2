@@ -26,22 +26,32 @@ app.use(session({
   }
 }));
 
-// const connection = mysql.createConnection({
-//       host: 'localhost',
-//       user: 'root',
-//       password: "",
-//       port: 3306,
-//       database: "mobcare"
-//     });
-
-
 const connection = mysql.createConnection({
-  host: 'db4free.net',
-  user: 'phoenixdigital',
-  password: "phoenix1",
-  database: "phoenixdigital",
-  port: 3306,
-});
+      host: 'localhost',
+      user: 'root',
+      password: "",
+      port: 3306,
+      database: "mobcare"
+    });
+
+  // function gen() {
+  //   var token = ''
+  //   for (let i = 0; i < 6; i++) {
+  //     const element = [i];
+  //     token += Math.floor(Math.random() * 10)
+  //   }
+  //   return token
+  // }  
+  // gen()
+  // console.log(gen());
+
+// const connection = mysql.createConnection({
+//   host: 'db4free.net',
+//   user: 'phoenixdigital',
+//   password: "phoenix1",
+//   database: "phoenixdigital",
+//   port: 3306,
+// });
 
 
 app.get('/db-setup', (req, res) => {
@@ -57,12 +67,11 @@ app.get('/db-setup', (req, res) => {
       console.log('result:', result)
   })
 
-   var sql = 'CREATE TABLE IF NOT EXISTS agents (id INT AUTO_INCREMENT PRIMARY KEY,  name VARCHAR(255), dob VARCHAR(255), nin VARCHAR(255), email VARCHAR(255), phone VARCHAR(255), password VARCHAR(255),  address VARCHAR(255), agency VARCHAR(255) )' ;
+  var sql = 'CREATE TABLE IF NOT EXISTS agents (id INT AUTO_INCREMENT PRIMARY KEY,  name VARCHAR(255), dob VARCHAR(255), nin VARCHAR(255), email VARCHAR(255), phone VARCHAR(255), password VARCHAR(255),  address VARCHAR(255), agency VARCHAR(255) )' ;
   connection.query(sql, (err, result) => { 
     if (err) throw err
       console.log('result:', result)
   })
-
 
   var sql = 'CREATE TABLE IF NOT EXISTS plans_table (id INT AUTO_INCREMENT PRIMARY KEY, user VARCHAR(255), balance VARCHAR(255),  plan1 VARCHAR(20), plan2 VARCHAR(20), numberOfPlans int(20), lastMonthSubscribed1 VARCHAR(255), lastMonthSubscribed2 VARCHAR(255), request VARCHAR(255) )'
   connection.query(sql, (err, result) => { 
@@ -87,6 +96,13 @@ app.get('/db-setup', (req, res) => {
     if (err) throw err
       console.log('result:', result)
   })
+  
+  var sql = 'CREATE TABLE IF NOT EXISTS purchase_subscriptions (id INT AUTO_INCREMENT PRIMARY KEY, user VARCHAR(255),  January VARCHAR(20), February VARCHAR(20), March VARCHAR(20), April VARCHAR(20), May VARCHAR(20), June VARCHAR(20), July VARCHAR(20), August VARCHAR(20), September VARCHAR(20), October VARCHAR(20), November VARCHAR(20), December VARCHAR(20))'
+  connection.query(sql, (err, result) => { 
+    if (err) throw err
+      console.log('result:', result)
+  })
+
   connection.end();
 })
 
@@ -104,6 +120,14 @@ app.get('/signup', (req, res) => {
   res.sendFile(filePath);
 });
 
+
+
+app.get('/existing-customer', (req, res) => {
+  const filePath = path.join(__dirname, 'views', 'existing-customers.html');
+  res.sendFile(filePath);
+});
+
+
 app.get('/login', (req, res) => {
   const filePath = path.join(__dirname, 'views', 'login.html');
   res.sendFile(filePath);
@@ -113,6 +137,7 @@ app.get('/subscription', (req, res) => {
   const filePath = path.join(__dirname, 'views', 'subscription.html');
   res.sendFile(filePath);
 });
+
 
 app.post('/existing-customer', (req, res) => {
   var {firstName, middleName, lastName, email, dob, gender, phone, accountEx, model, referrer, brand, color, worth, plan, address} = req.body
@@ -475,7 +500,13 @@ app.post('/customer-signup', (req, res) => {
       connection.query(sql, values, (err, result) => { 
         if (err) throw err;
       });    
-    } else {
+    } else if(plan == 'Purchase'){
+      var sql = `INSERT INTO purchase_subscriptions (user, January, February, March, April, May, June, July, August, September, October, November, December) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      var values = [phone, "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled"]; 
+      connection.query(sql, values, (err, result) => { 
+        if (err) throw err;
+      });
+    }  else {
       var sql = `INSERT INTO theft_subscriptions (user, January, February, March, April, May, June, July, August, September, October, November, December) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
       var values = [phone, "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled"]; 
       connection.query(sql, values, (err, result) => { 
@@ -648,7 +679,7 @@ app.post('/customer-signup', (req, res) => {
           // }else{
           //   res.render('badCredentials')
           //  }
-         res.send('Bad Credentials: Wrong email or Password')
+         res.send('Bad Credentials: wrong email or password')
 
         } 
    })
@@ -681,6 +712,7 @@ app.get('/dashboard', (req, res) => {
             message = 'You have no appointments yet.'
             subscriptionChecker(phoneNumber, accountNumber, firstName, lastName, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, message)
           } else {
+              console.log('Matching results found:', results2);
           }
       }
   });
@@ -692,10 +724,15 @@ app.get('/dashboard', (req, res) => {
       var sql = `SELECT * FROM theft_subscriptions where user = '${phoneNumber}'`
       connection.query(sql, (err, theftPlanResult1) => {
         if (err) throw err
-        var repairPlanResult = repairPlanResult1[0]
-        var theftPlanResult = theftPlanResult1[0]
-      
-       res.render('customerDashboard', {phoneNumber, accountNumber, firstName, lastName, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, message, repairPlanResult, theftPlanResult})
+        var sql = `SELECT * FROM purchase_subscriptions where user = '${phoneNumber}'`
+        connection.query(sql, (err, purchasePlanResult1) => {
+          if (err) throw err
+          var purchasePlanResult = purchasePlanResult1[0]
+          var repairPlanResult = repairPlanResult1[0]
+          var theftPlanResult = theftPlanResult1[0]
+        
+         res.render('customerDashboard', {phoneNumber, accountNumber, firstName, lastName, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, message, repairPlanResult, theftPlanResult, purchasePlanResult})
+        })
       })
     })
   }
@@ -779,6 +816,7 @@ app.post('/fund-wallet', (req, res) => {
       response.on('end', () => {
         var parsedRecievedLogonData = JSON.parse(recievedLogonData);
         tokenData = parsedRecievedLogonData.token
+        //console.log(tokenData);
         balanceChecker(tokenData)
       })
     })
@@ -786,6 +824,7 @@ app.post('/fund-wallet', (req, res) => {
     logonHttpSender.on('error', (error) => {
       console.error('Error in HTTP request:', error.message);
       var errorMessage = error.message
+      //res.render('notify', {errorMessage, message: 'Not Successful'})
     });
   
     logonHttpSender.write(logonRequestData);
@@ -916,8 +955,6 @@ app.post('/agent-signup', (req, res) => {
   }
 })
 
-  
- 
 
 
 app.listen(3000, () => {
