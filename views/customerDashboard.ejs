@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Lemon&family=Nunito:wght@300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap-3.4.1-dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/customerDashboard.css">
@@ -84,7 +83,7 @@
     <div class="popUpBox" id="sub-modal">
         <h2>Paid Subscriptions</h2>
         <% if (typeof repairPlanResult === 'undefined') { %>
-            <p>You are Subscribed to only Theft Plan</p>
+            <p></p>
         <% } else { %>
             <h4 style="text-align: center; font-weight: bold;"><b>Repair Plan</b></h4>
             <div class="tableCont">
@@ -161,7 +160,7 @@
         <% } %>
 
         <% if (typeof theftPlanResult === 'undefined') { %>
-            <p>You are Subscribed to only Repair Plan</p>
+            <p></p>
         <% } else { %>
             <h4 style="text-align: center; font-weight: bold;"><b>Theft Plan</b></h4>
             <div class="tableCont">
@@ -237,6 +236,83 @@
             </div>
         <% } %>
         
+
+        <% if (typeof purchasePlanResult === 'undefined') { %>
+            <p></p>
+        <% } else { %>
+            <h4 style="text-align: center; font-weight: bold;"><b>Purchase Plan</b></h4>
+            <div class="tableCont">
+                <table class="table table-striped">
+                    <thead>
+                        <tr class="bg bg-primary">
+                            <th>Month</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr>
+                                <td>January</td>
+                                <td><%= purchasePlanResult.January %></td>
+                            </tr>
+                            <tr>
+                                <td>February</td>
+                                <td><%= purchasePlanResult.February %></td>
+                            </tr>
+                            <tr>
+                                <td>March</td>
+                                <td><%= purchasePlanResult.March %></td>
+                            </tr>
+                            <tr>
+                                <td>April</td>
+                                <td><%= purchasePlanResult.April %></td>
+                            </tr>
+                            <tr>
+                                <td>May</td>
+                                <td><%= purchasePlanResult.May %></td>
+                            </tr>
+                            <tr>
+                                <td>June</td>
+                                <td><%= purchasePlanResult.June %></td>
+                            </tr>
+                    </tbody>
+                </table>
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr class="bg bg-primary">
+                            <th>Month</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr>
+                                <td>July</td>
+                                <td><%= purchasePlanResult.July %></td>
+                            </tr>
+                            <tr>
+                                <td>August</td>
+                                <td><%= purchasePlanResult.August %></td>
+                            </tr>
+                            <tr>
+                                <td>September</td>
+                                <td><%= purchasePlanResult.September %></td>
+                            </tr>
+                            <tr>
+                                <td>October</td>
+                                <td><%= purchasePlanResult.October %></td>
+                            </tr>
+                            <tr>
+                                <td>November</td>
+                                <td><%= purchasePlanResult.November %></td>
+                            </tr>
+                            <tr>
+                                <td>December</td>
+                                <td><%= purchasePlanResult.December %></td>
+                            </tr>
+                    </tbody>
+                </table>
+            </div>
+        <% } %>
     </div>
 </section>
 
