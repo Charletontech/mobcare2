@@ -34,7 +34,7 @@
             overlay.innerHTML = `
             <div class="formCont">
                 <p style="text-align: right;" onclick="back()">Back</p>
-                <form action="" method="post">
+                <form action="/agent-signup" method="post">
                     <h1 style="color: white; text-align: center; font-size: 3em;">MobCare</h1>
                     <h3 style="color: white; text-align: center; font-size: 1.5em;">Agent Form</h3>
                     
@@ -44,24 +44,24 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="name" class="form-label">Date Of Birth</label>
+                        <input type="date" name="dob" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" style="background-color: transparent; color: white; border: 1px solid white;">
+                    </div>
+
+                    <div class="mb-3">
                         <label for="nin" class="form-label">National Identification Number</label>
                         <input type="text" name="nin" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" style="background-color: transparent; color: white; border: 1px solid white;">
                     </div>
                     
                     <div class="mb-3">
                         <label for="exampleInputEmail1" class="form-label">Email address</label>
-                        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" style="background-color: transparent; color: white; border: 1px solid white;">
+                        <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" style="background-color: transparent; color: white; border: 1px solid white;">
                         <div id="emailHelp" class="form-text" style="color: white;">We'll never share your email with anyone else.</div>
                     </div>
 
                     <div class="mb-3">
                         <label for="phone" class="form-label">Phone Number</label>
                         <input type="tel" name="phone" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" style="background-color: transparent; color: white; border: 1px solid white;">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="phone" class="form-label">Password</label>
-                        <input type="password" name="password" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" style="background-color: transparent; color: white; border: 1px solid white;">
                     </div>
 
                     <div class="mb-3">
