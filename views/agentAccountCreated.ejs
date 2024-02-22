@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lemon&family=Nunito:wght@300&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Created</title>
+    <style>
+        body {
+            font-family: 'Nunito', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            max-width: 350px;
+            width: 80%;
+        }
+
+        h1 {
+            color: #046599;
+            margin-bottom: 20px;
+        }
+
+        .fullname {
+            color: #333;
+            font-size: 14px;
+            margin-top: 30px;
+        }
+
+        .border-bottom {
+            border-bottom: 1px solid #ccc;
+            margin: 20px 0;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: #00a24a;
+            font-size: 18px;
+        }
+
+        .button {
+            background-color: #00a24a;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #008c43;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Account Created</h1>
+        <div class="border-bottom"></div>
+        <div class="fullname">Welcome! <br><span class="highlight"><%= name %></span></div>
+        <div class="border-bottom"></div>
+        <div class="fullname" style="font-size: 13px;">Your agent account has been created. Your date of birth is your password.</div>
+        <!-- <button class="button">Continue</button> -->
+    </div>
+</body>
+</html>
