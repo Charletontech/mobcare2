@@ -57,6 +57,13 @@ app.get('/db-setup', (req, res) => {
       console.log('result:', result)
   })
 
+   var sql = 'CREATE TABLE IF NOT EXISTS agents (id INT AUTO_INCREMENT PRIMARY KEY,  name VARCHAR(255), dob VARCHAR(255), nin VARCHAR(255), email VARCHAR(255), phone VARCHAR(255), password VARCHAR(255),  address VARCHAR(255), agency VARCHAR(255) )' ;
+  connection.query(sql, (err, result) => { 
+    if (err) throw err
+      console.log('result:', result)
+  })
+
+
   var sql = 'CREATE TABLE IF NOT EXISTS plans_table (id INT AUTO_INCREMENT PRIMARY KEY, user VARCHAR(255), balance VARCHAR(255),  plan1 VARCHAR(20), plan2 VARCHAR(20), numberOfPlans int(20), lastMonthSubscribed1 VARCHAR(255), lastMonthSubscribed2 VARCHAR(255), request VARCHAR(255) )'
   connection.query(sql, (err, result) => { 
     if (err) throw err
@@ -92,12 +99,6 @@ app.get('/', (req, res) => {
 });
 
 
-app.get('/tt', (req, res) => {
-  const filePath = path.join(__dirname, 'views', 'customerDashboard.html');
-  res.sendFile(filePath);
-});
-
-
 app.get('/signup', (req, res) => {
   const filePath = path.join(__dirname, 'views', 'signup.html');
   res.sendFile(filePath);
@@ -112,6 +113,200 @@ app.get('/subscription', (req, res) => {
   const filePath = path.join(__dirname, 'views', 'subscription.html');
   res.sendFile(filePath);
 });
+
+app.post('/existing-customer', (req, res) => {
+  var {firstName, middleName, lastName, email, dob, gender, phone, accountEx, model, referrer, brand, color, worth, plan, address} = req.body
+console.log(req.body);
+  //logic to convert date to required format
+  function convertDate(inputDate) {
+    // Parse the input date (assuming yyyy-mm-dd format)
+    const parsedDate = new Date(inputDate);
+    // Format the date in the desired format (yyyy-mm-ddTHH:mm:ss.sssZ)
+    const formattedDate = parsedDate.toISOString();
+    return formattedDate;
+  }
+  const convertedDate = convertDate(dob);
+
+
+  //LOGIC TO HASH PASSWORD
+  const hash = crypto.createHash('sha256');
+  hash.update(dob);
+  const hashedPassword = hash.digest('hex');
+
+
+   //Logic to capitalize plan
+   function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  plan = capitalize(plan)
+
+
+  //Logic to add user to database
+  addUserToDatabase(accountEx)
+  function addUserToDatabase(accountEx) {
+    var sql = `INSERT INTO customers (firstName, middleName, lastName, accountNumber, gender,  dob, email,  phoneNumber, password, phoneWorth, phoneModel, phoneBrand, phoneColor, address, plan, referrer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    var values = [firstName, middleName, lastName, accountEx,  gender,  dob, email, phone, hashedPassword, worth, model,  brand, color, address,  plan,  referrer]
+    connection.query(sql, values, (err, result1) => { 
+      if (err) throw err
+    })
+
+    var sql = "INSERT INTO plans_table (user, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, request) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    var values = [phone, 0, plan, "Nil", 1, "Nil", "Nil", 0]
+    connection.query(sql, values, (err, result2) => {
+      if (err) throw err
+    })
+
+    if (plan == 'Repair') {
+      var sql = `INSERT INTO repair_subscriptions (user, January, February, March, April, May, June, July, August, September, October, November, December) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      var values = [phone, "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled"]; 
+      connection.query(sql, values, (err, result) => { 
+        if (err) throw err;
+      });    
+    } else {
+      var sql = `INSERT INTO theft_subscriptions (user, January, February, March, April, May, June, July, August, September, October, November, December) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      var values = [phone, "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled", "Disabled"]; 
+      connection.query(sql, values, (err, result) => { 
+        if (err) throw err;
+      });    
+    }
+
+    var fullName = firstName + " " + middleName + " " + lastName
+    var acctNoParam = accountEx;
+    res.render('notify', {fullName, acctNoParam})
+    //signUpEmailNotification(accountEx)
+  }
+
+   
+
+  //LOGIC TO SEND SIGN UP NOTIFICATION EMAIL TO USER
+  function signUpEmailNotification(params) {
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.elasticemail.com',
+      port: 2525, // Make sure port is specified as a number (not a string)
+      secure: false, // Set secure as a boolean
+      auth: {
+        user: 'phoenixdigitalcrest@mail.com',
+        pass: `${process.env.EMAIL_PASS}`,
+      },
+    });
+
+  
+    //Mail details
+    const mailContent = {
+      from: 'phoenixdigitalcrest@mail.com',
+      to: `${email}`,
+      subject: `New user! ${firstName} ${middleName} ${lastName}`,
+      html: `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Email Verification</title>
+        <style>
+          /* Reset styles for email clients */
+          body, p {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+          }
+      
+          /* Container */
+          .container {
+            background-color: white;
+            padding: 20px;
+          }
+      
+          /* Header */
+          .header {
+            background-color: #046599;
+            color: white;
+            text-align: center;
+            padding: 12px 15px; 
+          }
+      
+          /* Company Logo */
+          .logo {
+            text-align: center;
+            margin-bottom: 20px;
+            display: block;
+            margin: auto;
+          }
+      
+          /* Logo Image */
+          .logo img {
+            width: 100px; /* Adjust the size as needed */
+            height: 100px; /* Adjust the size as needed */
+            border-radius: 50%; /* Makes the logo round */
+          }
+      
+          /* Content */
+          .content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 3px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            color: black;
+            line-height: 1.4rem; 
+          }
+      
+          h3{
+            color:  #00a24a;
+          }
+
+          .token{
+            color: rgb(38, 145, 38);
+            letter-spacing: 3px;
+          }
+      
+          /* Footer */
+          .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #777;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+            <div class="logo">
+            </div>
+          <div class="header">
+            
+            <h1>New User</h1>
+          </div>
+          <div class="content">
+            <p>
+            <h3>Details:</h3>
+            <p>Full Name: ${firstName} ${middleName} ${lastName}</p>
+            <p>Account Number: ${params}</p>
+            <p>Phone Number: ${phone}</p>
+            <p>Phone Model: ${model}</p>
+            <p>Phone Brand: ${brand}</p>
+            <p>Phone Color:${color}</p>
+            <p>Insurance Plan: ${plan}</p>
+            <p>Customer Address: ${address}</p>
+            <p>Name Of Referrer: ${referrer}</p>
+            </p>
+          </div>
+          <div class="footer">
+            <p>Mobcare &copy; 2024 </p>
+          </div>
+        </div>
+      </body>
+      </html> 
+       `
+     }
+
+    //Sending the mail
+    transporter.sendMail(mailContent, (error, info) =>{
+      if (error){
+        console.error('error sending mail', error)
+      }else{
+        console.log('Email sent', info.response)
+       }
+    })
+  }
+})
 
 
 app.post('/customer-signup', (req, res) => {
@@ -695,6 +890,31 @@ app.post('/fund-wallet', (req, res) => {
 })
 
 
+app.post('/agent-signup', (req, res) => {
+  var {name, dob, nin, email, phone, address, agency } = req.body
+  
+  var sql = 'SELECT * FROM agents'
+  connection.query(sql, (err, result) => {
+    if (err) throw err
+    var agent = result.find(function (each) {
+      return each.name == name || each.phone == phone
+    })
+    if (agent) {
+      res.send('Agent already exists!')
+    } else {
+      addAgentToDatabase()
+    }
+  })
+
+  function addAgentToDatabase() {
+    var sql = 'INSERT INTO agents (name, nin, email, phone, password, address, agency) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    var values = [name, nin, email, phone, dob, address, agency];
+    connection.query(sql, values, (err, result1) => {
+      if (err) throw err
+      res.render('agentAccountCreated', {name})
+    })
+  }
+})
 
   
  
