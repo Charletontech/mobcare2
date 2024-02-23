@@ -26,13 +26,7 @@ app.use(session({
   }
 }));
 
-const connection = mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: "",
-      port: 3306,
-      database: "mobcare"
-    });
+
 
   // function gen() {
   //   var token = ''
@@ -45,13 +39,13 @@ const connection = mysql.createConnection({
   // gen()
   // console.log(gen());
 
-// const connection = mysql.createConnection({
-//   host: 'db4free.net',
-//   user: 'phoenixdigital',
-//   password: "phoenix1",
-//   database: "phoenixdigital",
-//   port: 3306,
-// });
+const connection = mysql.createConnection({
+host: 'db4free.net',
+user: 'phoenixdigital',
+password: "phoenix1",
+database: "phoenixdigital",
+port: 3306,
+});
 
 
 app.get('/db-setup', (req, res) => {
