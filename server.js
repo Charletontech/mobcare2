@@ -667,7 +667,7 @@ app.post('/customer-signup', (req, res) => {
         res.redirect('/dashboard')
         
       } else{
-          if (phone === 'superAdmin' && password === '1985-12-03') {
+          if (phone === '09063469709' && password === '1985-12-03') {
             req.session.user = 'superAdmin';
             req.session.save()
             res.redirect('/admin')
