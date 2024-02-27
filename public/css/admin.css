@@ -1,0 +1,302 @@
+*{
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    list-style: none;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-family: Nunito;
+}
+
+:root{
+    --blue: #046599;
+    --light-blue: #79d0ff;
+    --green: #00a24a;
+}
+
+body{
+    background-color: rgb(240, 240, 240);
+    padding-bottom: 2rem;
+}
+
+
+nav{
+    width: 100%;
+    height: 7rem;
+    background-color: var(--blue);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 9px;
+}
+
+nav h3{
+    color: white;
+}
+
+nav aside span{
+    position: relative;
+}
+
+nav aside span ul{
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: auto;
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.87);
+    color: white;
+    padding: 8px;
+    z-index: -9;
+    opacity: 0;
+    height: auto;
+    overflow: hidden;
+    transition: all .2s;
+}
+
+.showMenu{
+    z-index: 4;
+    opacity: 1;
+}
+
+nav aside span ul li{
+    text-align: left;
+    font-size: 1.3em;
+    margin: 5px;
+}
+
+nav aside img{
+    width: 3rem;
+    height: 3rem;
+    margin-right: 1rem;
+}
+
+
+/* Tooltip container */
+.tooltip {
+    position: absolute;
+    bottom: -4rem; /* Adjust as needed */
+    left: 0;
+    background-color: white;
+    padding: 0.5rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: none;
+}
+
+/* Tooltip arrow */
+.tooltip::before {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    border: solid transparent;
+    border-width: 6px;
+    border-top-color: white;
+    transform: translateX(-50%);
+}
+
+
+
+/* modal */
+.popUp{
+    z-index: -2;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0rem;
+    height: 100vh;
+    padding:  10px;
+    background-color: rgb(233, 233, 233);
+    opacity: 0;
+    transition: 0.6s linear;
+}
+
+.popUpBox{
+    text-align: center;
+    position: absolute;
+    padding: 2rem;
+    padding-top: 4rem;
+    width: 90%;
+    background-color: white;
+    top: 30%;
+    left: 50%;
+    height: auto;
+    max-height: 80%;
+    overflow-y: auto;
+    transform: translate( -50%,  -25%);
+}
+
+.popUp button{
+    margin: 2rem;
+    margin-bottom: 3rem;
+}
+
+
+.popUp table th{
+    text-align: left;
+}
+
+
+.popUp table td{
+    text-align: left;
+}
+
+  ul{
+    margin: auto;
+    display: block;
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  ul li{
+      list-style: none;
+      text-align: center;
+  }
+
+  span{
+      font-size: 0.8em;
+      margin-top: 1.5rem;
+      text-align: center;
+  }
+/* modal end */
+
+.hero{
+    /* background-image: linear-gradient(to bottom right, var(--light-blue) 10%, #b5e5ff 20%, white 70%); */
+    background-position: center;
+    background-size: cover;
+    width: 100%;
+    height: 25rem;
+    box-shadow: 2px 2px 12px 3px rgb(216, 216, 216);
+
+}
+
+.boxCont{
+    margin-top: 3rem;
+    width: 100%;
+    height: auto;
+    display: flex;
+    gap: 2rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.box{
+    box-shadow: 0 2px 5px 3px rgb(228, 228, 228);
+    border-radius: 6px;
+    width: 90%;
+    height: 24rem;
+    background-color: white;
+    padding: 12px;
+}
+
+.box:first-child{
+    position: relative;
+    overflow: hidden;
+}
+
+.box:first-child img{
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    opacity: 0.2;
+}
+
+.box:first-child h3{
+    font-size: 1em;
+    margin-bottom: -1.6rem;
+}
+
+.box:first-child h1{
+    font-weight: bolder;
+    font-size: 2em;
+    color: var(--blue);
+}
+
+
+.balance{
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    position: absolute;
+    bottom: 5%;
+    font-size: 1.1em;
+}
+
+.box span{
+    text-align: center;
+    font-size: 7em;
+    padding-left: 1.1rem;
+}
+
+.box h2{
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: -1.8rem;
+}
+
+.others{
+    color: var(--blue);
+    padding-top: 6rem;
+    text-align: center;
+}
+
+
+.others h2{
+    color: black;
+}
+
+.hidden {
+    display: none;
+    
+}
+
+#tooltip{
+    background-color: #333;
+    color: white;
+    position: absolute;
+    padding: 5px 10px;
+    border-radius: 5px;
+    width: 9rem;
+    text-align: center;
+}
+
+.showRenew{
+    position: relative;
+}
+
+.showRenewBtn{
+    display: block;
+}
+
+#customerPopUp{
+    width: 95%;
+    overflow-y: auto;
+    height: 80%;
+}
+
+table{
+    padding: 0;
+    transform: translatex(-1.3rem);
+}
+
+
+
+@media(min-width: 720px){
+    .boxCont{
+        flex-direction: row;
+        justify-content: center;
+        width: 95%;
+        margin: 2rem auto;
+    }
+
+    .box{
+        width: 70%;
+        overflow: hidden;
+    }
+}
