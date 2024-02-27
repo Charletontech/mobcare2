@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="css/bootstrap-3.4.1-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobcare - Dashboard</title>
+</head>
+<body>
+    <nav>
+        <h3 style="font-weight: bolder;">Mobcare</h3>
+        <aside>
+            <img src="https://res.cloudinary.com/dbfue99qr/image/upload/v1707734165/Mobcare/3135715_xvqxwa.png" alt="avater">
+            <span style="color: white;" class=" glyphicon glyphicon-option-horizontal" onclick="showMenu()">
+            <ul class="menu">
+                <li><a href="/" style="color: white;">Home</a></li>
+            </ul>
+            </span>
+        </aside>
+    </nav>
+
+    <section class="boxCont">
+        <div class="box">
+            <img src="https://res.cloudinary.com/dbfue99qr/image/upload/v1707734165/Mobcare/wallet_c8come.png" alt="">
+           <h3>Welcome back!</h3>
+           <h1>Admin</h1>
+           
+        </div>
+        
+        <div class="box others"  onclick="showPopUp(customerPopUp)">
+            <p style="text-align: center; font-size: .8em; color: #046599; " ><span class="material-symbols-outlined">
+                group
+                </span></p>
+            <h2>Customers</h2>    
+        </div>
+        <div class="box others" onclick="showPopUp(verifyAgentPopUp)">
+            <span class="material-symbols-outlined">
+                person_add
+                </span>
+            <h2>Verify Agents</h2>
+        </div>
+        <div class="box others" onclick="showPopUp(approvedAgentPopUp)">
+            <p> <span class="material-symbols-outlined">
+                person_check
+                </span></span></p>
+            <h2>Approved Agents</h2>
+        </div>
+        <div class="box others ">
+            <p><span class="material-symbols-outlined">
+                bar_chart
+                </span></p>
+            <h2>Export Data</h2>
+        </div>
+    </section>
+
+         <!-- Customers pop up modal -->
+        <section class="popUp" id="customerPopUp" style="width: 100%;">
+            <b style="text-align: right; margin-left: 78%;" class="back" onclick="hidePopUp(customerPopUp)"><i class="glyphicon glyphicon-chevron-left"></i> Back</b>
+            <div class="popUpBox">
+                <div class="tableCont" style="width: 110%;">
+                    <table class="table table-striped" >
+                        <thead>
+                            <tr class="bg bg-primary">
+                                <th>Id</th>
+                                <th>Customer</th>
+                                <th>Phone</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                                <% for (let i = 0; i < customers.length; i++) { %>
+                                    <tr>
+                                        <% const element = customers[i]; %>
+                                        <td><%= element.id %></td>
+                                        <td><%= element.firstName %> <%= element.middleName %> <%= element.lastName %></td>
+                                        <td><%= element.phoneNumber %></td>
+                                        <td class="customerDetailBtn"><a href="/see-customer-details?id=<%= element.phoneNumber %>"><button class="btn btn-primary" style="margin: 0;">Details</button></a></td>
+                                    </tr>
+                                <% } %>                        
+                        </tbody>
+                    </table>
+                </div>        
+            </div>
+        </section>
+    <!-- Customers modal ends -->
+
+
+    <!-- Approved Agent pop up modal -->
+    <section class="popUp" id="approvedAgentPopUp" style="width: 100%;">
+        <b style="text-align: right; margin-left: 78%;" class="back" onclick="hidePopUp(approvedAgentPopUp)"><i class="glyphicon glyphicon-chevron-left"></i> Back</b>
+        <div class="popUpBox">
+            <div class="tableCont" style="width: 110%;">
+                <table class="table table-striped" >
+                    <thead>
+                        <tr class="bg bg-primary">
+                            <th>Agent</th>
+                            <th>Phone</th>
+                            <th>Agency</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (agents === 'No data') { %>
+                            <tr>
+                                <td>No data</td>
+                            </tr>
+                            <% } else { %>
+                              
+                            <% } %>
+                        <% for (let i = 0; i < agents.length; i++) { %>
+                            <tr>
+                                <% const each = agents[i]; %>
+                                <td><%= each.name %></td>
+                                <td><%= each.phone %></td>
+                                <td><%= each.agency %> </td>
+                                <td class="agentDetailBtn"><a href="/see-approved-agent-details?id=<%= each.phone %>"><button class="btn btn-primary" style="margin: 0;">Details</button></a></td>
+                            </tr>
+                        <% } %> 
+                    </tbody>
+                </table>
+            </div>        
+        </div>
+    </section>
+    <!-- Approved agent modal ends -->
+
+    <!-- Verify Agent pop up modal -->
+    <section class="popUp" id="verifyAgentPopUp" style="width: 100%;">
+        <b style="text-align: right; margin-left: 78%;" class="back" onclick="hidePopUp(verifyAgentPopUp)"><i class="glyphicon glyphicon-chevron-left"></i> Back</b>
+        <div class="popUpBox">
+            <div class="tableCont" style="width: 110%;">
+                <table class="table table-striped" >
+                    <thead>
+                        <tr class="bg bg-primary">
+                            <th>Agent</th>
+                            <th>Phone</th>
+                            <th>Agency</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (agentRequest === 'No data') { %>
+                            <tr>
+                                <td>No new agent sign up requests.</td>
+                            </tr>
+                        <% } else { %>
+                            <% for (let i = 0; i < agentRequest.length; i++) { %>
+                                <tr>
+                                    <% const each2 = agentRequest[i]; %>
+                                    <td><%= each2.name %></td>
+                                    <td><%= each2.phone %></td>
+                                    <td><%= each2.agency %> </td>
+                                    <td class="agentReqDetailBtn"><a href="/see-unverified-agent-details?id=<%= each2.phone %>"><button class="btn btn-primary" style="margin: 0;">Details</button></a></td>
+                                </tr>
+                            <% } %>
+                        <% } %>
+                         
+                    </tbody>
+                </table>
+            </div>        
+        </div>
+    </section>
+    <!-- Verify agent modal ends -->
+
+
+    
+    <script src="css/bootstrap-3.4.1-dist/js/npm.js"></script>
+    <script>
+        // Get the button and tooltip elements
+        const tooltip = document.getElementById('tooltip');
+        const back = document.querySelector('.back')
+        const popUp = document.querySelector('.popUp')
+        const customerPopUp = document.getElementById('customerPopUp');
+        const verifyAgentPopUp = document.getElementById('verifyAgentPopUp');
+        const approvedAgentPopUp = document.getElementById('approvedAgentPopUp');
+        
+        //logic to show menu
+        function showMenu() {
+            var menu = document.querySelector('.menu')
+            menu.classList.toggle('showMenu')
+        }
+        
+       
+
+        //Logic to see customer detail
+        // const customerDetailBtn = document.querySelectorAll('.customerDetailBtn')
+        // for (let index = 0; index < customerDetailBtn.length; index++) {
+        //     var each = customerDetailBtn[index];
+        //     each.addEventListener('click', function () {
+        //     var id = this.parentNode.children[2].innerText;
+
+        //     var data = {id: id};
+        //     var opt = {
+        //         method: 'POST',
+        //         headers: new Headers({
+        //             'Content-Type': 'application/json; charset=UTF-8'
+        //         }),
+        //         body: JSON.stringify(data)
+        //     }
+        //     fetch('/see-customer-details', opt)
+        // })
+            
+        // }
+        
+
+// for (let index = 0; index < customerDetailBtn.length; index++) {
+//     var each = customerDetailBtn[index];
+//     each.addEventListener('click', function () {
+//         var id = this.parentNode.children[2].innerText;
+
+//         var data = { id: id };
+//         var opt = {
+//             method: 'POST',
+//             headers: new Headers({
+//                 'Content-Type': 'application/json; charset=UTF-8'
+//             }),
+//             body: JSON.stringify(data)
+//         };
+
+//         fetch('/see-customer-details', opt)
+//             .then(response => response.text()) // Parse the response as text
+//             .then(html => {
+//                 // Create a new HTML document from the received HTML content
+//                 var parser = new DOMParser();
+//                 var doc = parser.parseFromString(html, 'text/html');
+
+//                 // Replace the current document with the received HTML content
+//                 document.open();
+//                 document.write(html);
+//                 document.close();
+//             })
+//             .catch(error => {
+//                 console.error('Error:', error);
+//             });
+//     });
+// }
+
+        
+       
+
+        function showPopUp(param) {
+            param.style.zIndex = 2;
+            param.style.opacity = 1
+        }
+
+        function hidePopUp(param) {
+            param.style.zIndex = -4;
+            param.style.opacity = 0
+        }
+
+
+       
+
+        //logic for creating local storage
+        // function createCache() {
+        //     const acctNo = document.getElementById('acctNo').innerText;
+        //     localStorage.setItem('acctId', acctNo)
+        // }
+        // createCache();
+        
+        
+
+       
+    </script>
+</body>
+</html>

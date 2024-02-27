@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="css/bootstrap-3.4.1-dist/css/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobcare - See <%= customers.lastName %>'s details.</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        
+        :root{
+            --blue: #046599;
+            --light-blue: #79d0ff;
+            --green: #1b8b4e;
+        }
+
+        body{
+            background-color: white;
+            padding-bottom: 2rem;
+        }
+
+
+        nav{
+            width: 100%;
+            height: 7rem;
+            background-color: var(--green);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 9px;
+        }
+
+        nav h3{
+            color: white;
+        }
+
+        nav aside span{
+            position: relative;
+        }
+
+        nav aside span ul{
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: auto;
+            display: inline-block;
+            background-color: rgba(0, 0, 0, 0.87);
+            color: white;
+            padding: 8px;
+            z-index: -9;
+            opacity: 0;
+            height: auto;
+            overflow: hidden;
+            transition: all .2s;
+        }
+
+        .showMenu{
+            z-index: 4;
+            opacity: 1;
+        }
+
+        nav aside span ul li{
+            text-align: left;
+            font-size: 1.3em;
+            margin: 5px;
+        }
+
+        nav aside img{
+            width: 3rem;
+            height: 3rem;
+            margin-right: 1rem;
+        }
+
+
+        /* Tooltip container */
+        .tooltip {
+            position: absolute;
+            bottom: -4rem; /* Adjust as needed */
+            left: 0;
+            background-color: white;
+            padding: 0.5rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        /* Tooltip arrow */
+        .tooltip::before {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            border: solid transparent;
+            border-width: 6px;
+            border-top-color: white;
+            transform: translateX(-50%);
+        }
+
+        .box{
+            height: 16rem;
+            padding: 25px 30px;
+        }
+
+        .box1 i{
+            color: white;
+            font-size: 8em;
+            outline:1px solid #c9c9c9;
+            background-color: #c9c9c9;
+            outline-offset: 1rem;
+            border-radius: 1px;
+                       
+        }
+
+        .box1 h2{
+            font-size: 2em;
+            transform: translateY(-3rem);
+        }
+
+        .box3{
+            padding-top: 25rem;
+        }
+
+
+        @media(min-width: 720px) {
+            .box1{
+                margin-top: 1.6rem;
+            }
+
+            .box3{
+            padding-top: 25px;
+        }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <h3 style="font-weight: bolder;">Mobcare</h3>
+        <aside>
+            <img src="https://res.cloudinary.com/dbfue99qr/image/upload/v1707734165/Mobcare/3135715_xvqxwa.png" alt="avater">
+            <span style="color: white;" class=" glyphicon glyphicon-option-horizontal" onclick="showMenu()">
+            <ul class="menu">
+                <li><a href="/" style="color: white;">Home</a></li>
+            </ul>
+            </span>
+        </aside>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="box box1 col-sm-12 col-lg-4" style="display: flex; align-items: flex-start;  gap: 2.4rem;">
+                <i class="glyphicon glyphicon-user"></i>
+                <h2><%= customers.lastName %> <%= customers.firstName %> <%= customers.middleName %></h2>
+            </div>
+            <div class="box col-sm-12 col-lg-4">
+                <table class="table table-striped ">
+                    <thead>
+                        <tr style="background-color: #1b8b4e; color: white;">
+                            <th>Personal Information</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th>Id Number</th>
+                            <td><%= customers.id %></td>
+                        </tr>
+                        <tr>
+                            <th>Account Number</th>
+                            <td><%= customers.accountNumber %></td>
+                        </tr>
+                        <tr>
+                            <th>Phone</th>
+                            <td id="id"><%= customers.phoneNumber %></td>
+                        </tr>
+                        <tr>
+                            <th>Gender</th>
+                            <td><%= customers.gender %></td>
+                        </tr>
+                        <tr>
+                            <th>Date Of Birth</th>
+                            <td><%= customers.dob %></td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td><%= customers.email %></td>
+                        </tr>
+                        <tr>
+                            <th>Address</th>
+                            <td><%= customers.address %></td>
+                        </tr>
+                        <tr>
+                            <th>Plan</th>
+                            <td><%= customers.plan %></td>
+                        </tr>
+                        <tr>
+                            <th>Referrer</th>
+                            <td><%= customers.referrer %></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="box box3 col-sm-12 col-lg-4">
+                <table class="table table-striped ">
+                    <thead>
+                        <tr style="background-color: #1b8b4e; color: white;">
+                            <th>Gadget Information</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th>Worth</th>
+                            <td><%= customers.phoneWorth %></td>
+                        </tr>
+                        <tr>
+                            <th>Model</th>
+                            <td><%= customers.phoneModel %></td>
+                        </tr>
+                        <tr>
+                            <th>Brand</th>
+                            <td><%= customers.phoneBrand %></td>
+                        </tr>
+                        <tr>
+                            <th>Color</th>
+                            <td><%= customers.phoneColor %></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                
+                
+                
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid" style="margin-top: 25rem;">
+        <div class="row">
+            <div class="col-sm-12 col-lg-4">
+                <!-- for repair plan -->
+                <% if (typeof repair == 'undefined') { %>
+                    <p>Not subcribed to Repair plan.</p>
+                <% } else { %>
+                    <table class="table table-striped ">
+                        <thead>
+                            <tr style="background-color: #1b8b4e; color: white;">
+                                <th>Repair Plan</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Month</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                                                        
+                            <% for (const month in repair) { %>
+                                    <tr>
+                                        <th><%= month %></th>
+                                        <td><%= repair[month] %></td>
+                                        <td>
+                                            <button class="repairEnableBtn btn btn-primary" style="margin: 0; padding: 4px 6px;"> <span class="glyphicon glyphicon-ok"></span></button>
+                                            <button class="btn btn-danger" style="margin: 0; padding: 4px 6px;"> <span class="glyphicon glyphicon-remove"></span></button>
+                                        </td>
+                                    </tr>
+                            <% } %>
+                           
+                        
+                        </tbody>
+                    </table>
+                 <% } %>
+            </div>
+
+            <!-- FOR THEFT PLAN -->
+            <div class="col-sm-12 col-lg-4">
+                <% if (typeof theft == 'undefined') { %>
+                    <p>Not subcribed to theft plan.</p>
+                <% } else { %>
+                    <table class="table table-striped ">
+                        <thead>
+                            <tr style="background-color: #1b8b4e; color: white;">
+                                <th>Theft Plan</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Month</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                                                        
+                            <% for (const month in theft) { %>
+                                    <tr>
+                                        <th><%= month %></th>
+                                        <td><%= theft[month] %></td>
+                                        <td>
+                                            <button class="theftEnableBtn btn btn-primary" style="margin: 0; padding: 4px 6px;"> <span class="glyphicon glyphicon-ok"></span></button>
+                                            <button class="btn btn-danger" style="margin: 0; padding: 4px 6px;"> <span class="glyphicon glyphicon-remove"></span></button>
+                                        </td>
+                                    </tr>
+                            <% } %>
+                           
+                        
+                        </tbody>
+                    </table>
+                 <% } %>
+            </div>
+
+            <!-- FOR PURCHASE PLAN -->
+            <div class="col-sm-12 col-lg-4">
+                <% if (typeof purchase == 'undefined') { %>
+                    <p>Not subcribed to Purchase plan.</p>
+                <% } else { %>
+                    <table class="table table-striped ">
+                        <thead>
+                            <tr style="background-color: #1b8b4e; color: white;">
+                                <th>Purchase Plan</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Month</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                                                        
+                            <% for (const month in purchase) { %>
+                                    <tr>
+                                        <th><%= month %></th>
+                                        <td><%= purchase[month] %></td>
+                                        <td>
+                                            <button class="purchaseEnableBtn btn btn-primary" style="margin: 0; padding: 4px 6px;"> <span class="glyphicon glyphicon-ok"></span></button>
+                                            <button class="btn btn-danger" style="margin: 0; padding: 4px 6px;"> <span class="glyphicon glyphicon-remove"></span></button>
+                                        </td>
+                                    </tr>
+                            <% } %>
+                           
+                        
+                        </tbody>
+                    </table>
+                 <% } %>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        //logic to show menu
+        function showMenu() {
+            var menu = document.querySelector('.menu')
+            menu.classList.toggle('showMenu')
+        }
+        
+        //LOGIC TO ENABLE/DISABLE MONTH
+        const id = document.getElementById('id').innerText;
+        var url = ''
+        
+        //Repair
+        var repairEnableBtn = document.querySelectorAll('.repairEnableBtn')
+        repairEnableBtn.forEach(each => {
+            url = '/enable-subscription-month-repair'
+            each.addEventListener('click',handler)
+        });
+
+        //Theft
+        var theftEnableBtn = document.querySelectorAll('.theftEnableBtn')
+        theftEnableBtn.forEach(each => {
+            url = '/enable-subscription-month-theft'
+            each.addEventListener('click', handler)
+        });
+
+        //Purchase
+        var purchaseEnableBtn = document.querySelectorAll('.purchaseEnableBtn')
+        purchaseEnableBtn.forEach(each => {
+            url = '/enable-subscription-month-purchase'
+            each.addEventListener('click', handler)
+        });
+
+
+        function handler() {
+            var month = this.parentNode.parentNode.children[0].innerHTML
+            var status = this.parentNode.parentNode.children[1]
+            var data = {
+                id: id,
+                month: month
+            };  
+
+            let fetchOption = {
+                method: 'POST',
+                headers: new Headers({
+                    'Content-Type': 'application/json; charset=UTF-8'
+                }),
+                body: JSON.stringify(data)
+            };
+
+            fetch(url, fetchOption)
+                .then(res => {
+                    if (res.ok) {
+                        return res.text(); // Extract response body as text
+                    } else {
+                        throw new Error('Failed to enable month');
+                    }
+                })
+                .then(message => {
+                    alert('Month enabled');
+                    status.innerHTML = 'Enabled'
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle error condition here
+                });
+
+        }
+  
+   </script>
+</body>
+</html>

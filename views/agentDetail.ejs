@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="css/bootstrap-3.4.1-dist/css/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobcare - see <%= result.name %>'s details.</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        
+        :root{
+            --blue: #046599;
+            --light-blue: #79d0ff;
+            --green: #1b8b4e;
+        }
+
+        body{
+            background-color: white;
+            /* background-color: rgb(240, 240, 240); */
+            padding-bottom: 2rem;
+        }
+
+
+        nav{
+            width: 100%;
+            height: 7rem;
+            background-color: var(--green);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 9px;
+        }
+
+        nav h3{
+            color: white;
+        }
+
+        nav aside span{
+            position: relative;
+        }
+
+        nav aside span ul{
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: auto;
+            display: inline-block;
+            background-color: rgba(0, 0, 0, 0.87);
+            color: white;
+            padding: 8px;
+            z-index: -9;
+            opacity: 0;
+            height: auto;
+            overflow: hidden;
+            transition: all .2s;
+        }
+
+        .showMenu{
+            z-index: 4;
+            opacity: 1;
+        }
+
+        nav aside span ul li{
+            text-align: left;
+            font-size: 1.3em;
+            margin: 5px;
+        }
+
+        nav aside img{
+            width: 3rem;
+            height: 3rem;
+            margin-right: 1rem;
+        }
+
+
+        /* Tooltip container */
+        .tooltip {
+            position: absolute;
+            bottom: -4rem; /* Adjust as needed */
+            left: 0;
+            background-color: white;
+            padding: 0.5rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        /* Tooltip arrow */
+        .tooltip::before {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            border: solid transparent;
+            border-width: 6px;
+            border-top-color: white;
+            transform: translateX(-50%);
+        }
+
+        .box{
+            height: 16rem;
+            padding: 25px 30px;
+        }
+
+        .box1 i{
+            color: white;
+            font-size: 8em;
+            outline:1px solid #c9c9c9;
+            background-color: #c9c9c9;
+            outline-offset: 1rem;
+            border-radius: 1px;
+                       
+        }
+
+        .box1 h2{
+            font-size: 2em;
+            transform: translateY(-3rem);
+        }
+
+        .box3{
+            padding-top: 25rem;
+        }
+
+
+        @media(min-width: 720px) {
+            .container-fluid{
+                width: 70%;
+            }
+            .box1{
+                margin-top: 1.6rem;
+            }
+
+            .box3{
+            padding-top: 25px;
+        }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <h3 style="font-weight: bolder;">Mobcare</h3>
+        <aside>
+            <img src="https://res.cloudinary.com/dbfue99qr/image/upload/v1707734165/Mobcare/3135715_xvqxwa.png" alt="avater">
+            <span style="color: white;" class=" glyphicon glyphicon-option-horizontal" onclick="showMenu()">
+            <ul class="menu">
+                <li><a href="/" style="color: white;">Home</a></li>
+            </ul>
+            </span>
+        </aside>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="box box1 col-sm-12 col-lg-4" style="display: flex; align-items: flex-start;  gap: 2.4rem;">
+                <i class="glyphicon glyphicon-user"></i>
+                <h2><%= result.name %></h2>
+            </div>
+            <div class="box col-sm-12 col-lg-8">
+                <table class="table table-striped ">
+                    <thead>
+                        <tr style="background-color: #1b8b4e; color: white;">
+                            <th>Personal Information</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th>Id Number</th>
+                            <td><%= result.id %></td>
+                        </tr>
+                        <tr>
+                            <th>Date Of Birth</th>
+                            <td><%= result.password %></td>
+                        </tr>
+                        <tr>
+                            <th>NIN</th>
+                            <td><%= result.nin %></td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td><%= result.email %></td>
+                        </tr>
+                        <tr>
+                            <th>Phone</th>
+                            <td><%= result.phone %></td>
+                        </tr>
+                        <tr>
+                            <th>Address</th>
+                            <td><%= result.address %></td>
+                        </tr>
+                        <tr>
+                            <th>Agency Name</th>
+                            <td><%= result.agency %></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        //logic to show menu
+        function showMenu() {
+           var menu = document.querySelector('.menu')
+           menu.classList.toggle('showMenu')
+       }
+   </script>
+</body>
+</html>
