@@ -26,26 +26,21 @@ app.use(session({
   }
 }));
 
+// const connection = mysql.createConnection({
+//       host: 'localhost',
+//       user: 'root',
+//       password: "",
+//       port: 3306,
+//       database: "mobcare"
+//     });
 
-
-  // function gen() {
-  //   var token = ''
-  //   for (let i = 0; i < 6; i++) {
-  //     const element = [i];
-  //     token += Math.floor(Math.random() * 10)
-  //   }
-  //   return token
-  // }  
-  // gen()
-  // console.log(gen());
-
-const connection = mysql.createConnection({
-host: 'db4free.net',
-user: 'phoenixdigital',
-password: "phoenix1",
-database: "phoenixdigital",
-port: 3306,
-});
+    const connection = mysql.createConnection({
+      host: 'db4free.net',
+      user: 'phoenixdigital',
+      password: "phoenix1",
+      database: "phoenixdigital",
+      port: 3306,
+      });
 
 
 app.get('/db-setup', (req, res) => {
@@ -56,6 +51,12 @@ app.get('/db-setup', (req, res) => {
   })
     
   var sql = 'CREATE TABLE IF NOT EXISTS customers (id INT AUTO_INCREMENT PRIMARY KEY,  accountNumber VARCHAR(20), firstName VARCHAR(255), middleName VARCHAR(255), lastName VARCHAR(255), gender VARCHAR(255),  dob VARCHAR(255), email VARCHAR(255),  phoneNumber VARCHAR(255), password VARCHAR(255), phoneWorth VARCHAR(255), phoneModel VARCHAR(255), phoneBrand VARCHAR(255), phoneColor VARCHAR(255), address VARCHAR(255), plan VARCHAR(255), referrer VARCHAR(255) )' ;
+  connection.query(sql, (err, result) => { 
+    if (err) throw err
+      console.log('result:', result)
+  })
+
+  var sql = 'CREATE TABLE IF NOT EXISTS agents_requests (id INT AUTO_INCREMENT PRIMARY KEY,  name VARCHAR(255), dob VARCHAR(255), nin VARCHAR(255), email VARCHAR(255), phone VARCHAR(255), password VARCHAR(255),  address VARCHAR(255), agency VARCHAR(255) )' ;
   connection.query(sql, (err, result) => { 
     if (err) throw err
       console.log('result:', result)
@@ -666,18 +667,78 @@ app.post('/customer-signup', (req, res) => {
         res.redirect('/dashboard')
         
       } else{
-          // if (username === 'superAdmin' && password === '000') {
-          //   req.session.user = 'superAdmin';
-          //   req.session.save()
-          //   res.redirect('/admin')
-          // }else{
-          //   res.render('badCredentials')
-          //  }
-         res.send('Bad Credentials: wrong email or password')
+          if (phone === 'superAdmin' && password === '1985-12-03') {
+            req.session.user = 'superAdmin';
+            req.session.save()
+            res.redirect('/admin')
+          }else{
+            res.send('Bad Credentials: incorrect email or password')
+           }
 
         } 
    })
 });
+
+app.get('/admin', async (req, res) => {
+  try {
+    var [customers, agents, agentRequest] = await Promise.all([getCustomers(), getAgents(), getAgentRequests()]);
+    if (agentRequest.length === 0) {
+      agentRequest = 'No data'
+    }
+
+    if (agents.length === 0) {
+      agents = 'No data'
+    }
+
+    if (customers.length === 0) {
+      customers = 'No data'
+    }
+
+    res.render('admin', { customers, agents, agentRequest });
+   
+  } catch (error) {
+    console.error(error);
+    // Handle errors appropriately
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+function getCustomers() {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT * FROM customers', (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+function getAgents() {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT * FROM agents', (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+
+function getAgentRequests() {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT * FROM agents_requests', (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
 
 
 app.get('/dashboard', (req, res) => {
@@ -940,13 +1001,145 @@ app.post('/agent-signup', (req, res) => {
   })
 
   function addAgentToDatabase() {
-    var sql = 'INSERT INTO agents (name, nin, email, phone, password, address, agency) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    var sql = 'INSERT INTO agents_requests (name, nin, email, phone, password, address, agency) VALUES (?, ?, ?, ?, ?, ?, ?)'
     var values = [name, nin, email, phone, dob, address, agency];
     connection.query(sql, values, (err, result1) => {
       if (err) throw err
       res.render('agentAccountCreated', {name})
     })
   }
+})
+
+
+
+app.get('/see-customer-details', (req, res) => {
+  var id = req.query.id;
+  connection.query(`SELECT *  FROM customers WHERE phoneNumber = '${id}'`,  (err, result1) => {
+    if (err) throw err
+    var customers = result1[0]
+    queryRepair(customers)
+  })
+
+  function queryRepair(customers) {
+    connection.query(`SELECT *  FROM repair_subscriptions WHERE user = '${id}'`,  (err, result1) => {
+      if (err) throw err
+      var repair = result1[0]
+      queryTheft(customers, repair)
+    })
+  }
+
+  function queryTheft(customers, repair) {
+    connection.query(`SELECT *  FROM theft_subscriptions WHERE user = '${id}'`,  (err, result1) => {
+      if (err) throw err
+      var theft = result1[0]
+      queryPurchase(customers, repair, theft)
+    })
+  }
+
+  function queryPurchase(customers, repair, theft) {
+    connection.query(`SELECT *  FROM purchase_subscriptions WHERE user = '${id}'`,  (err, result1) => {
+      if (err) throw err
+      var purchase = result1[0]
+      res.render('customerDetail', { customers, repair, theft, purchase })
+    })
+  }
+})
+
+
+app.get('/see-approved-agent-details', (req, res) => {
+  var id = req.query.id;
+  connection.query(`SELECT *  FROM agents WHERE phone = '${id}'`,  (err, result1) => {
+    if (err) throw err
+    var result = result1[0]
+    res.render('agentDetail', { result })
+  })
+})
+
+
+app.get('/see-unverified-agent-details', (req, res) => {
+  var id = req.query.id;
+  connection.query(`SELECT *  FROM agents_requests WHERE phone = '${id}'`,  (err, result1) => {
+    if (err) throw err
+    var result = result1[0]
+    res.render('newAgentDetail', { result })
+  })
+})
+
+app.get('/save-agent', (req, res) => {
+  var id = req.query.id;
+  connection.query(`SELECT *  FROM agents_requests WHERE phone = '${id}'`,  (err, result1) => {
+    if (err) throw err
+    var result = result1[0]
+    var { name, nin, email, phone, password, address, agency} = result;
+    insertIntoAgentsTable( name, nin, email, phone, password, address, agency)
+  })
+
+  function insertIntoAgentsTable( name, nin, email, phone, password, address, agency) {
+    var values = [name, nin, email, phone, password, address, agency]
+    connection.query('INSERT INTO agents ( name, nin, email, phone, password, address, agency) VALUES (?, ?, ?, ?, ?, ?, ?)', values,  (err, result1) => {
+      if (err){
+        res.send('<h3>Operation Failed!</h3>')
+        console.log(err);
+      }else{
+        connection.query(`DELETE FROM agents_requests WHERE phone = '${phone}'`, values,  (err, result1) => {
+          if (err) throw err 
+        })
+        res.send('<h3 style="color: green">Agent approved!</h3>')
+      }
+    })
+  }
+})
+
+
+app.get('/decline-agent', (req, res) => {
+  var id = req.query.id;
+
+  connection.query(`DELETE FROM agents_requests WHERE phone = '${id}'`, (err, result1) => {
+    if (err) {
+      console.log(err);
+    }else{
+      res.send('<h3 style="color: red">Agent declined!</h3>')
+    }
+  })
+})
+
+
+app.post('/enable-subscription-month-repair', (req, res) => {
+  var {id, month} = req.body
+  connection.query(`UPDATE repair_subscriptions SET ${month} = 'Enabled' WHERE user = '${id}'`, (err, result1) => {
+    if (err) {
+      console.log(err);
+    }else{
+      res.send('Month enabled')
+    }
+  })
+
+})
+
+app.post('/enable-subscription-month-theft', (req, res) => {
+  var {id, month} = req.body
+  connection.query(`UPDATE theft_subscriptions SET ${month} = 'Enabled' WHERE user = '${id}'`, (err, result1) => {
+    if (err) {
+      console.log(err);
+    }else{
+      res.send('Month enabled')
+    }
+  })
+
+})
+
+
+
+app.post('/enable-subscription-month-purchase', (req, res) => {
+  var {id, month} = req.body
+  connection.query(`UPDATE purchase_subscriptions SET ${month} = 'Enabled' WHERE user = '${id}'`, (err, result1) => {
+    if (err) {
+      console.log(err);
+    }else{
+      res.send('Month enabled')
+    }
+  })
+
 })
 
 
