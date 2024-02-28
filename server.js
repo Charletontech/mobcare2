@@ -193,7 +193,7 @@ console.log(req.body);
     var fullName = firstName + " " + middleName + " " + lastName
     var acctNoParam = accountEx;
     res.render('notify', {fullName, acctNoParam})
-    //signUpEmailNotification(accountEx)
+    signUpEmailNotification(accountEx)
   }
 
    
@@ -332,7 +332,25 @@ console.log(req.body);
 app.post('/customer-signup', (req, res) => {
   //PROCESSING DATA FROM FORM
   var {firstName, middleName, lastName, email, dob, gender, phone, model, referrer, brand, color, worth, plan, address} = req.body
-  
+ 
+ //RegEx to check phone number and date of birth
+  phone = phone.replace(/\s/g, '')
+  if (/\W/.test(phone) === true || phone.length !== 11) {
+    res.send('Wrong phone number format. Please use the correct format <b>e.g 08098936XXX</b> (also ensure it is up to 11 figures)')
+    return
+  } else {
+    console.log('good for number');
+  }
+
+  var checkDob = new Date(dob).getFullYear()
+  if (parseInt(checkDob) > 2004) {
+    res.send('Wrong date of birth. User must be <b>20 years</b> and above.');
+    return
+  } else {
+    console.log('good for dob');
+  }
+  // regEx ends
+
   //Logic to capitalize plan
   function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
