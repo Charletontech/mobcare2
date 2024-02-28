@@ -26,21 +26,21 @@ app.use(session({
   }
 }));
 
-// const connection = mysql.createConnection({
-//       host: 'localhost',
-//       user: 'root',
-//       password: "",
-//       port: 3306,
-//       database: "mobcare"
-//     });
-
-    const connection = mysql.createConnection({
-      host: 'db4free.net',
-      user: 'phoenixdigital',
-      password: "phoenix1",
-      database: "phoenixdigital",
+const connection = mysql.createConnection({
+      host: 'localhost',
+      user: 'root',
+      password: "",
       port: 3306,
-      });
+      database: "mobcare"
+    });
+
+    // const connection = mysql.createConnection({
+    //   host: 'db4free.net',
+    //   user: 'phoenixdigital',
+    //   password: "phoenix1",
+    //   database: "phoenixdigital",
+    //   port: 3306,
+    //   });
 
 
 app.get('/db-setup', (req, res) => {
@@ -667,7 +667,7 @@ app.post('/customer-signup', (req, res) => {
         res.redirect('/dashboard')
         
       } else{
-          if (phone === '09063469709' && password === '1985-12-03') {
+          if (phone === 'superAdmin' && password === '1999-01-01') {
             req.session.user = 'superAdmin';
             req.session.save()
             res.redirect('/admin')
@@ -1143,6 +1143,40 @@ app.post('/enable-subscription-month-purchase', (req, res) => {
 })
 
 
+app.post('/disable-subscription-month-repair', (req, res) => {
+  var {id, month} = req.body
+  connection.query(`UPDATE repair_subscriptions SET ${month} = 'Disabled' WHERE user = '${id}'`, (err, result1) => {
+    if (err) {
+      console.log(err);
+    }else{
+      res.send('Month disabled')
+    }
+  })
+})
+
+
+app.post('/disable-subscription-month-theft', (req, res) => {
+  var {id, month} = req.body
+  connection.query(`UPDATE theft_subscriptions SET ${month} = 'Disabled' WHERE user = '${id}'`, (err, result1) => {
+    if (err) {
+      console.log(err);
+    }else{
+      res.send('Month disabled')
+    }
+  })
+})
+
+
+app.post('/disable-subscription-month-purchase', (req, res) => {
+  var {id, month} = req.body
+  connection.query(`UPDATE purchase_subscriptions SET ${month} = 'Disabled' WHERE user = '${id}'`, (err, result1) => {
+    if (err) {
+      console.log(err);
+    }else{
+      res.send('Month disabled')
+    }
+  })
+})
 
 app.listen(3000, () => {
   console.log('Listening at port 3000...');
