@@ -26,21 +26,21 @@ app.use(session({
   }
 }));
 
-const connection = mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: "",
-      port: 3306,
-      database: "mobcare"
-    });
+// const connection = mysql.createConnection({
+//       host: 'localhost',
+//       user: 'root',
+//       password: "",
+//       port: 3306,
+//       database: "mobcare"
+//     });
 
-    // const connection = mysql.createConnection({
-    //   host: 'db4free.net',
-    //   user: 'phoenixdigital',
-    //   password: "phoenix1",
-    //   database: "phoenixdigital",
-    //   port: 3306,
-    //   });
+    const connection = mysql.createConnection({
+      host: 'db4free.net',
+      user: 'phoenixdigital',
+      password: "phoenix1",
+      database: "phoenixdigital",
+      port: 3306,
+      });
 
 
 app.get('/db-setup', (req, res) => {
@@ -667,7 +667,7 @@ app.post('/customer-signup', (req, res) => {
         res.redirect('/dashboard')
         
       } else{
-          if (phone === 'superAdmin' && password === '1999-01-01') {
+          if (phone === '09063469709' && password === '1985-12-03') {
             req.session.user = 'superAdmin';
             req.session.save()
             res.redirect('/admin')
