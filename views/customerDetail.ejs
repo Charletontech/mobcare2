@@ -203,7 +203,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="box box3 col-sm-12 col-lg-4" style="margin-top: 9rem;">
+            <div class="box box3 col-sm-12 col-lg-4" style="margin-top: 8rem;">
                 <table class="table table-striped ">
                     <thead>
                         <tr style="background-color: #1b8b4e; color: white;">
@@ -266,7 +266,7 @@
                                         <td><%= repair[month] %></td>
                                         <td>
                                             <button class="repairEnableBtn btn btn-primary" style="margin: 0; padding: 4px 6px;"> <span class="glyphicon glyphicon-ok"></span></button>
-                                            <button class="btn btn-danger" style="margin: 0; padding: 4px 6px;"> <span class="glyphicon glyphicon-remove"></span></button>
+                                            <button class="repairDisableBtn btn btn-danger" style="margin: 0; padding: 4px 6px;"> <span class="glyphicon glyphicon-remove"></span></button>
                                         </td>
                                     </tr>
                             <% } %>
@@ -303,7 +303,7 @@
                                         <td><%= theft[month] %></td>
                                         <td>
                                             <button class="theftEnableBtn btn btn-primary" style="margin: 0; padding: 4px 6px;"> <span class="glyphicon glyphicon-ok"></span></button>
-                                            <button class="btn btn-danger" style="margin: 0; padding: 4px 6px;"> <span class="glyphicon glyphicon-remove"></span></button>
+                                            <button class="theftDisableBtn btn btn-danger" style="margin: 0; padding: 4px 6px;"> <span class="glyphicon glyphicon-remove"></span></button>
                                         </td>
                                     </tr>
                             <% } %>
@@ -340,7 +340,7 @@
                                         <td><%= purchase[month] %></td>
                                         <td>
                                             <button class="purchaseEnableBtn btn btn-primary" style="margin: 0; padding: 4px 6px;"> <span class="glyphicon glyphicon-ok"></span></button>
-                                            <button class="btn btn-danger" style="margin: 0; padding: 4px 6px;"> <span class="glyphicon glyphicon-remove"></span></button>
+                                            <button class="purchaseDisableBtn btn btn-danger" style="margin: 0; padding: 4px 6px;"> <span class="glyphicon glyphicon-remove"></span></button>
                                         </td>
                                     </tr>
                             <% } %>
@@ -354,73 +354,81 @@
     </div>
 
     <script>
-        //logic to show menu
+        // Logic to show menu
         function showMenu() {
-            var menu = document.querySelector('.menu')
-            menu.classList.toggle('showMenu')
+            var menu = document.querySelector('.menu');
+            menu.classList.toggle('showMenu');
         }
         
-        //LOGIC TO ENABLE/DISABLE MONTH
-        const id = document.getElementById('id').innerText;
-        var url = ''
-        
-        //Repair
-        var repairEnableBtn = document.querySelectorAll('.repairEnableBtn')
-        repairEnableBtn.forEach(each => {
-            url = '/enable-subscription-month-repair'
-            each.addEventListener('click',handler)
-        });
-
-        //Theft
-        var theftEnableBtn = document.querySelectorAll('.theftEnableBtn')
-        theftEnableBtn.forEach(each => {
-            url = '/enable-subscription-month-theft'
-            each.addEventListener('click', handler)
-        });
-
-        //Purchase
-        var purchaseEnableBtn = document.querySelectorAll('.purchaseEnableBtn')
-        purchaseEnableBtn.forEach(each => {
-            url = '/enable-subscription-month-purchase'
-            each.addEventListener('click', handler)
-        });
-
-
-        function handler() {
-            var month = this.parentNode.parentNode.children[0].innerHTML
-            var status = this.parentNode.parentNode.children[1]
-            var data = {
-                id: id,
-                month: month
-            };  
-
-            let fetchOption = {
-                method: 'POST',
-                headers: new Headers({
-                    'Content-Type': 'application/json; charset=UTF-8'
-                }),
-                body: JSON.stringify(data)
-            };
-
-            fetch(url, fetchOption)
-                .then(res => {
-                    if (res.ok) {
-                        return res.text(); // Extract response body as text
-                    } else {
-                        throw new Error('Failed to enable month');
-                    }
-                })
-                .then(message => {
-                    alert('Month enabled');
-                    status.innerHTML = 'Enabled'
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    // Handle error condition here
+        // Function to set up event listener for a specific button type
+        function setupButtonListeners(buttons, url, err, statusMsg) {
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    var month = this.parentNode.parentNode.children[0].innerHTML;
+                    var status = this.parentNode.parentNode.children[1];
+                    var data = {
+                        id: id,
+                        month: month
+                    };  
+    
+                    let fetchOption = {
+                        method: 'POST',
+                        headers: new Headers({
+                            'Content-Type': 'application/json; charset=UTF-8'
+                        }),
+                        body: JSON.stringify(data)
+                    };
+    
+                    fetch(url, fetchOption)
+                        .then(res => {
+                            if (res.ok) {
+                                return res.text(); // Extract response body as text
+                            } else {
+                                throw new Error(err);
+                            }
+                        })
+                        .then(message => {
+                            alert(`Month ${statusMsg}`);
+                            status.innerHTML = statusMsg;
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            // Handle error condition here
+                        });
                 });
-
+            });
         }
-  
-   </script>
+    
+        const id = document.getElementById('id').innerText;
+    
+        //CALL FUNCTIONS FOR ENABLE BUTTON
+        // Set up event listeners for repair buttons
+        var repairEnableBtn = document.querySelectorAll('.repairEnableBtn');
+        setupButtonListeners(repairEnableBtn, '/enable-subscription-month-repair', 'Failed to enable month', 'Enabled');
+    
+        // Set up event listeners for theft buttons
+        var theftEnableBtn = document.querySelectorAll('.theftEnableBtn');
+        setupButtonListeners(theftEnableBtn, '/enable-subscription-month-theft', 'Failed to enable month', 'Enabled');
+    
+        // Set up event listeners for purchase buttons
+        var purchaseEnableBtn = document.querySelectorAll('.purchaseEnableBtn');
+        setupButtonListeners(purchaseEnableBtn, '/enable-subscription-month-purchase', 'Failed to enable month', 'Enabled');
+
+
+        //CALL FUNCTIONS FOR DISABLE BUTTONS
+        //repair
+        var repairDisableBtn = document.querySelectorAll('.repairDisableBtn');
+        setupButtonListeners(repairDisableBtn, '/disable-subscription-month-repair', 'Failed to disable month', 'Disabled');
+
+        //theft 
+        var theftDisableBtn = document.querySelectorAll('.theftDisableBtn');
+        setupButtonListeners(theftDisableBtn, '/disable-subscription-month-theft', 'Failed to disable month', 'Disabled');
+
+        //purchase 
+        var purchaseDisableBtn = document.querySelectorAll('.purchaseDisableBtn');
+        setupButtonListeners(purchaseDisableBtn, '/disable-subscription-month-purchase', 'Failed to disable month', 'Disabled');
+    
+    </script>
+    
 </body>
 </html>
