@@ -989,8 +989,10 @@ app.post('/fund-wallet', (req, res) => {
     
     function responseToClient(parsedData, acctId, receivedBalance) {
       if (parsedData.status == "Approved") {
+        console.log('fund1')
         var sql = `UPDATE plans_table SET balance = '${receivedBalance}' WHERE user = ${phone} `;
         connection.query(sql, (err, result) =>{
+          console.log('fund2')
           if (err) throw err;
         })
         resObj.status(200)
