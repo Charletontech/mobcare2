@@ -858,6 +858,7 @@ app.post('/add-plan', (req, res) => {
 app.post('/fund-wallet', (req, res) => {
   let acctId = req.body.acctNo
   let phone = req.body.phone
+
   tokenGenerator()
   function tokenGenerator() {
     var tokenData = '';
@@ -889,7 +890,6 @@ app.post('/fund-wallet', (req, res) => {
       response.on('end', () => {
         var parsedRecievedLogonData = JSON.parse(recievedLogonData);
         tokenData = parsedRecievedLogonData.token
-        //console.log(tokenData);
         balanceChecker(tokenData)
       })
     })
@@ -925,6 +925,7 @@ app.post('/fund-wallet', (req, res) => {
 
       response.on('end', function() {
         var recievedBalance = JSON.parse(data).balance
+        console.log(recievedBalance);
         debitBalance(token, recievedBalance, acctId)
       });
     }
@@ -939,7 +940,7 @@ app.post('/fund-wallet', (req, res) => {
         const payload = JSON.stringify({
             "account": acctId, // Assuming acctId is the account number
             "reference": "001",
-            "amount": receivedBalance, // Assuming receivedBalance is the amount to debit
+            "amount": 5, // Assuming receivedBalance is the amount to debit
             "description": "Debit for funding wallet - Mobcare",
             "channel": "1"
         });
