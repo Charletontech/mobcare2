@@ -940,7 +940,7 @@ app.post('/fund-wallet', (req, res) => {
         const payload = JSON.stringify({
             "account": acctId, // Assuming acctId is the account number
             "reference": "001",
-            "amount": 5, // Assuming receivedBalance is the amount to debit
+            "amount": receivedBalance, // Assuming receivedBalance is the amount to debit
             "description": "Debit for funding wallet - Mobcare",
             "channel": "1"
         });
