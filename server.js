@@ -133,6 +133,21 @@ app.get('/subscription', (req, res) => {
   res.sendFile(filePath);
 });
 
+app.post('/agent-login', (req, res) => {   
+  const {email, password} = req.body
+  connection.query('SELECT * FROM agents', (err, results) => {
+    if (err) throw err;
+    var agent = results.find(each => {
+      return each.email == email && each.password == password
+    })
+    if (agent) {
+      var agentName = agent.name;
+      res.render('vendorDashboard', {agentName})
+    } else {
+      res.send('Bad Credentials: incorrect email or password')
+    }
+  })
+})
 
 app.post('/existing-customer', (req, res) => {
   var {firstName, middleName, lastName, email, dob, gender, phone, accountEx, model, referrer, brand, color, worth, plan, address} = req.body
