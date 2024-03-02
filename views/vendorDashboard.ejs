@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="css/bootstrap-3.4.1-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/vendorDashboard.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobcare - Agent dashboard</title>
+</head>
+<body>
+    <nav>
+        <h3 style="font-weight: bolder;">Mobcare</h3>
+        <aside>
+            <img src="https://res.cloudinary.com/dbfue99qr/image/upload/v1707734165/Mobcare/3135715_xvqxwa.png" alt="avater">
+            <span style="color: white;" class=" glyphicon glyphicon-option-horizontal" onclick="showMenu()">
+            <ul class="menu">
+                <li><a href="/" style="color: white;">Home</a></li>
+            </ul>
+            </span>
+        </aside>
+    </nav>
+
+    <section class="boxCont">
+        <div class="box">
+            <img src="https://res.cloudinary.com/dbfue99qr/image/upload/v1707734165/Mobcare/wallet_c8come.png" alt="">
+           <h3>Welcome back!</h3>
+           <h1><%= agentName %></h1>
+           
+        </div>
+        
+        <div class="box others"  >
+            <a href="/signup" style="text-decoration: none;">
+                <div style="width: 100%; height: 100%;">
+                    <p style="text-align: center; font-size: .8em; color: #046599; " ><span class="material-symbols-outlined">
+                        group
+                        </span></p>
+                    <h2>Register customer</h2>    
+                </div>
+            </a>
+        </div>
+        <div class="box others" onclick="showPopUp(verifyAgentPopUp)">
+            <span class="material-symbols-outlined">
+                person_add
+                </span>
+            <h2>Subscribe Customer</h2>
+        </div>
+        
+    </section>
+
+         <!-- Customers pop up modal -->
+        <section class="popUp" id="customerPopUp" style="width: 100%;">
+            <b style="text-align: right; margin-left: 78%;" class="back" onclick="hidePopUp(customerPopUp)"><i class="glyphicon glyphicon-chevron-left"></i> Back</b>
+            <div class="popUpBox">
+                <div class="tableCont" style="width: 110%;">
+                    <table class="table table-striped" >
+                        <thead>
+                            <tr class="bg bg-primary">
+                                <th>Id</th>
+                                <th>Customer</th>
+                                <th>Phone</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                              
+                                    <tr>
+                                       
+                                        <td>12</td>
+                                        <td>asas</td>
+                                        <td>aas</td>
+                                        <td class="customerDetailBtn"><button class="btn btn-primary" style="margin: 0;">Details</button></td>
+                                    </tr>
+                                                       
+                        </tbody>
+                    </table>
+                </div>        
+            </div>
+        </section>
+    <!-- Customers modal ends -->
+
+
+
+    <!-- Verify Agent pop up modal -->
+    <section class="popUp" id="verifyAgentPopUp" style="width: 100%;">
+        <b style="text-align: right; margin-left: 78%;" class="back" onclick="hidePopUp(verifyAgentPopUp)"><i class="glyphicon glyphicon-chevron-left"></i> Back</b>
+        <div class="popUpBox">
+            <div class="confirm">
+                <p style="text-align: right; font-size: 1.4em; margin-right: 2.5rem; margin-top: -1rem; color: rgb(197, 7, 7);"> <strong><span class="glyphicon glyphicon-remove"></span></strong></p>
+                <h3>Confirm Details</h3>
+                <b>Account Number</b>
+                <p class="acctInput">00542923739</p>
+                <b>Phone</b>
+                <p class="phoneInput">09000000000</p>
+                <button class="btn btn-success">Complete Payment</button>
+            </div>   
+            <div class="line"></div>
+
+            <div class="formCont" style="margin-top: 3.5rem;">
+                <h3 style="text-align: center; margin-bottom: 2rem;">Customer Details</h3>
+                <form action="/fund-wallet" method="post" onsubmit="return false">
+                    <div class="mb-3">
+                        <input placeholder="Account Number" type="tel" name="account" class="form-control" aria-describedby="emailHelp" style="background-color: transparent; ">
+                    </div>
+
+                    <div class="mb-3">
+                        <input placeholder="Phone Number" type="tel" name="phone" class="form-control" aria-describedby="emailHelp" style="background-color: transparent; margin-top: 1rem;">
+                    </div>
+                    <button class="makePayment btn btn-success">Confirm</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    <!-- Verify agent modal ends -->
+
+
+    
+    <script src="css/bootstrap-3.4.1-dist/js/npm.js"></script>
+    <script>
+        // Get the button and tooltip elements
+        const tooltip = document.getElementById('tooltip');
+        const back = document.querySelector('.back')
+        const popUp = document.querySelector('.popUp')
+        const customerPopUp = document.getElementById('customerPopUp');
+        const verifyAgentPopUp = document.getElementById('verifyAgentPopUp');
+        const approvedAgentPopUp = document.getElementById('approvedAgentPopUp');
+        
+        //logic to show menu
+        function showMenu() {
+            var menu = document.querySelector('.menu')
+            menu.classList.toggle('showMenu')
+        }
+        
+        function showPopUp(param) {
+            param.style.zIndex = 2;
+            param.style.opacity = 1
+        }
+
+        function hidePopUp(param) {
+            param.style.zIndex = -4;
+            param.style.opacity = 0
+        }
+
+        //logic to show confirm details
+        let confirm = document.querySelector('.confirm')
+        let makePayment = document.querySelector('.makePayment')
+        const account = document.getElementsByTagName('input')[0].value
+        const phone = document.getElementsByTagName('input')[1].value
+        
+        makePayment.addEventListener('click', function showConfirmDetails() {
+            confirm.classList.toggle('showConfirm')
+            this.parentNode.parentNode.classList.toggle('hidden');
+
+            const acctInput = document.querySelector('.acctInput')
+            const phoneInput = document.querySelector('.phoneInput')
+            
+            acctInput.innerHTML = `${account}`;
+            phoneInput.innerHTML = `${phone}`;
+            console.log(account, phone);
+        })
+
+        //logic to hide confirm details
+        let closeConfirmBox = document.querySelector('.confirm p:nth-child(1)')
+        closeConfirmBox.addEventListener('click', function () {
+            confirm.classList.toggle('showConfirm')
+            makePayment.parentNode.parentNode.classList.toggle('hidden')
+        })
+
+        //logic to send complete payment request
+        const completePaymentBtn = document.querySelector('.confirm button');
+        completePaymentBtn.addEventListener('click', function () {
+
+            completePaymentBtn.disabled = true;
+
+            const fetchData = {
+                acctNo: account,
+                phone: phone
+            }
+
+            const option = {
+                method: 'POST',
+                body: JSON.stringify(fetchData),
+                headers: new Headers({
+                    'Content-Type': 'application/json; charset=UTF-8'
+                })
+            }
+            fetch('/fund-wallet', option)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    completePaymentBtn.innerHTML = 'Payment Failed';
+                }
+            })
+            .then(data => {
+                completePaymentBtn.disabled = false;
+                completePaymentBtn.innerHTML = data.message;
+                alert('Payment Successful')
+            })
+            .catch(err => {
+                console.error('Error: ', err)
+                completePaymentBtn.innerHTML = "Payment Failed";
+            })
+        })
+        
+
+        //logic for creating local storage
+        // function createCache() {
+        //     const acctNo = document.getElementById('acctNo').innerText;
+        //     localStorage.setItem('acctId', acctNo)
+        // }
+        // createCache();
+        
+        
+
+       
+    </script>
+</body>
+</html>
