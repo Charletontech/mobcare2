@@ -48,8 +48,12 @@
                 </span></span></p>
             <h2>Approved Agents</h2>
         </div>
+        <div class="box others" onclick="showPopUp(transactions)">
+            <p style="margin-bottom: 2.4rem; margin-left: -1rem; margin-top: 1rem;"> <span class="glyphicon glyphicon-list-alt" style="font-size: 7.5rem;"></span></p>
+            <h2>All Transactions</h2>
+        </div>
         <div class="box others ">
-            <p><span class="material-symbols-outlined">
+            <p><span class="material-symbols-outlined" onclick="showPopUp(exportPopUp)">
                 bar_chart
                 </span></p>
             <h2>Export Data</h2>
@@ -165,16 +169,106 @@
     <!-- Verify agent modal ends -->
 
 
+    <!-- Transactions pop up modal -->
+    <section class="popUp" id="transactions" style="width: 100%;">
+        <b style="text-align: right; margin-left: 78%;" class="back" onclick="hidePopUp(transactions)"><i class="glyphicon glyphicon-chevron-left"></i> Back</b>
+        <div class="popUpBox">
+            <div class="tableCont" style="width: 110%;">
+                <table class="table table-striped" >
+                    <thead>
+                        <tr class="bg bg-primary">
+                            <th>Id</th>
+                            <th>Time</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Agent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (typeof transactions !== 'No data') { %>
+                            <%  for (var each of  transactions) {  %>
+                                <tr>
+                                    <td><%= each.id %></td>
+                                    <td><%= each.regTime %></td>
+                                    <td><%= new Date(each.regDate).toLocaleDateString() %></td>
+                                    <td><%= each.user %></td>
+                                    <td>&#8358; <%= each.amount %></td>
+                                    <td><%= each.agent %></td>
+                                </tr>
+                            <% }  %>
+                            
+                        <% } else { %>
+                            <tr>
+                                <td>No transactions yet.</td>
+                            </tr>
+                        <% } %>                    
+                    </tbody>
+                </table>
+            </div>        
+        </div>
+    </section>
+<!-- Transactions modal ends -->
+
+
+      <!-- Export data pop up modal -->
+      <section class="popUp" id="exportPopUp" style="width: 100%;">
+        <b style="text-align: right; margin-left: 78%;" class="back" onclick="hidePopUp(exportPopUp)"><i class="glyphicon glyphicon-chevron-left"></i> Back</b>
+        <div class="popUpBox" style="width: 80%;">
+            <div class="tableCont" style="width: 110%;">
+                <table class="table table-striped" >
+                    
+                    <tbody>
+                                <tr>
+                                    <td>Customers Worksheet</td>
+                                    <td class="customerDetailBtn"><a href="/export?type=customers"><button class="btn btn-primary" style="margin: 0;">Download</button></a></td>
+                                </tr>
+
+                                
+                                <tr>
+                                    <td>Agents Worksheet</td>
+                                    <td class="customerDetailBtn"><a href="/export?type=agents"><button class="btn btn-primary" style="margin: 0;">Download</button></a></td>
+                                </tr>
+
+                                
+                                <tr>
+                                    <td>Repair plan subscribers Worksheet</td>
+                                    <td class="customerDetailBtn"><a href="/export?type=repair"><button class="btn btn-primary" style="margin: 0;">Download</button></a></td>
+                                </tr>
+
+                                <tr>
+                                    <td>Theft plan subscribers Worksheet</td>
+                                    <td class="customerDetailBtn"><a href="/export?type=theft"><button class="btn btn-primary" style="margin: 0;">Download</button></a></td>
+                                </tr>
+
+                                <tr>
+                                    <td>Purchase plan subscribers Worksheet</td>
+                                    <td class="customerDetailBtn"><a href="/export?type=purchase"><button class="btn btn-primary" style="margin: 0;">Download</button></a></td>
+                                </tr>
+
+                                <tr>
+                                    <td>Transactions Worksheet</td>
+                                    <td class="customerDetailBtn"><a href="/export?type=transactions"><button class="btn btn-primary" style="margin: 0;">Download</button></a></td>
+                                </tr>
+                    </tbody>
+                </table>
+            </div>        
+        </div>
+    </section>
+<!-- Export data modal ends -->
+
+
     
     <script src="css/bootstrap-3.4.1-dist/js/npm.js"></script>
     <script>
         // Get the button and tooltip elements
-        const tooltip = document.getElementById('tooltip');
         const back = document.querySelector('.back')
         const popUp = document.querySelector('.popUp')
         const customerPopUp = document.getElementById('customerPopUp');
         const verifyAgentPopUp = document.getElementById('verifyAgentPopUp');
         const approvedAgentPopUp = document.getElementById('approvedAgentPopUp');
+        const exportPopUp = document.getElementById('exportPopUp');
+        const transactions = document.getElementById('transactions');
         
         //logic to show menu
         function showMenu() {
@@ -184,59 +278,7 @@
         
        
 
-        //Logic to see customer detail
-        // const customerDetailBtn = document.querySelectorAll('.customerDetailBtn')
-        // for (let index = 0; index < customerDetailBtn.length; index++) {
-        //     var each = customerDetailBtn[index];
-        //     each.addEventListener('click', function () {
-        //     var id = this.parentNode.children[2].innerText;
-
-        //     var data = {id: id};
-        //     var opt = {
-        //         method: 'POST',
-        //         headers: new Headers({
-        //             'Content-Type': 'application/json; charset=UTF-8'
-        //         }),
-        //         body: JSON.stringify(data)
-        //     }
-        //     fetch('/see-customer-details', opt)
-        // })
-            
-        // }
-        
-
-// for (let index = 0; index < customerDetailBtn.length; index++) {
-//     var each = customerDetailBtn[index];
-//     each.addEventListener('click', function () {
-//         var id = this.parentNode.children[2].innerText;
-
-//         var data = { id: id };
-//         var opt = {
-//             method: 'POST',
-//             headers: new Headers({
-//                 'Content-Type': 'application/json; charset=UTF-8'
-//             }),
-//             body: JSON.stringify(data)
-//         };
-
-//         fetch('/see-customer-details', opt)
-//             .then(response => response.text()) // Parse the response as text
-//             .then(html => {
-//                 // Create a new HTML document from the received HTML content
-//                 var parser = new DOMParser();
-//                 var doc = parser.parseFromString(html, 'text/html');
-
-//                 // Replace the current document with the received HTML content
-//                 document.open();
-//                 document.write(html);
-//                 document.close();
-//             })
-//             .catch(error => {
-//                 console.error('Error:', error);
-//             });
-//     });
-// }
-
+       
         
        
 
