@@ -521,9 +521,11 @@
         function fundWalletReq() {
             const acctNo = document.getElementById('acctNo').innerText;
             var completeBtn = document.querySelector('.completeBtn')
-            var data = {acctNo: acctNo,
-                        phone: phone
-            }
+            var data = {
+                acctNo: acctNo,
+                phone: phone,
+                agent: 'self service'
+                }
             completeBtn.disabled = true
             completeBtn.innerHTML = 'Please Wait...'
             var fetchOptions = {
