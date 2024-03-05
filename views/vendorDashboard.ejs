@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="css/bootstrap-3.4.1-dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/vendorDashboard.css">
     <meta charset="UTF-8">
@@ -46,39 +44,54 @@
                 </span>
             <h2>Subscribe Customer</h2>
         </div>
+        <div class="box others" onclick="showPopUp(customerPopUp)">
+            <span class="material-symbols-outlined">
+                person_add
+                </span>
+            <h2>Transactions History</h2>
+        </div>
         
     </section>
 
-         <!-- Customers pop up modal -->
+         <!-- Transactions pop up modal -->
         <section class="popUp" id="customerPopUp" style="width: 100%;">
             <b style="text-align: right; margin-left: 78%;" class="back" onclick="hidePopUp(customerPopUp)"><i class="glyphicon glyphicon-chevron-left"></i> Back</b>
             <div class="popUpBox">
+                <h3>Transactions</h3>
                 <div class="tableCont" style="width: 110%;">
                     <table class="table table-striped" >
                         <thead>
                             <tr class="bg bg-primary">
                                 <th>Id</th>
-                                <th>Customer</th>
-                                <th>Phone</th>
-                                <th>Action</th>
+                                <th>Time</th>
+                                <th>Date</th>
+                                <th>User</th>
+                                <th>amount</th>
                             </tr>
                         </thead>
                         <tbody>
-                              
+                            <% if (typeof transactions !== 'undefined') { %>
+                                <%  for (var each of  transactions) {  %>
                                     <tr>
-                                       
-                                        <td>12</td>
-                                        <td>asas</td>
-                                        <td>aas</td>
-                                        <td class="customerDetailBtn"><button class="btn btn-primary" style="margin: 0;">Details</button></td>
+                                        <td><%= each.id %></td>
+                                        <td><%= each.regTime %></td>
+                                        <td><%= new Date(each.regDate).toLocaleDateString() %></td>
+                                        <td><%= each.user %></td>
+                                        <td>&#8358; <%= each.amount %></td>
                                     </tr>
-                                                       
+                                <% }  %>
+                                
+                            <% } else { %>
+                              <p>No transactions yet.</p>
+                            <% } %>
+                            
+                                    
                         </tbody>
                     </table>
                 </div>        
             </div>
         </section>
-    <!-- Customers modal ends -->
+    <!-- Transactions modal ends -->
 
 
 
@@ -157,7 +170,6 @@
             
             acctInput.innerHTML = `${account}`;
             phoneInput.innerHTML = `${phone}`;
-            console.log(account, phone);
         })
 
         //logic to hide confirm details
@@ -168,6 +180,7 @@
         })
 
         //logic to send complete payment request
+        const agent = document.querySelector('.box h1').innerHTML
         const completePaymentBtn = document.querySelector('.confirm button');
         completePaymentBtn.addEventListener('click', function () {
 
@@ -175,7 +188,8 @@
 
             const fetchData = {
                 acctNo: account,
-                phone: phone
+                phone: phone, 
+                agent: agent
             }
 
             const option = {
