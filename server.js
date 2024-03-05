@@ -2,11 +2,13 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
-const path = require('path');
 const crypto = require('crypto');
 const http = require('http');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
+const ExcelJS = require('exceljs');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 
@@ -49,6 +51,17 @@ app.get('/db-setup', (req, res) => {
     if (err) throw err
       console.log('connected to database ' +  connection.threadId) 
   })
+  
+  connection.query('ALTER TABLE customers ADD regTime TIME DEFAULT CURRENT_TIME', (err, result) => { 
+      if (err) throw err
+        console.log('result:', result)
+    })
+
+    connection.query('ALTER TABLE customers ADD  regDate DATE DEFAULT CURRENT_DATE', (err, result) => { 
+      if (err) throw err
+        console.log('result:', result)
+    })
+  
     
   var sql = 'CREATE TABLE IF NOT EXISTS customers (id INT AUTO_INCREMENT PRIMARY KEY,  accountNumber VARCHAR(20), firstName VARCHAR(255), middleName VARCHAR(255), lastName VARCHAR(255), gender VARCHAR(255),  dob VARCHAR(255), email VARCHAR(255),  phoneNumber VARCHAR(255), password VARCHAR(255), phoneWorth VARCHAR(255), phoneModel VARCHAR(255), phoneBrand VARCHAR(255), phoneColor VARCHAR(255), address VARCHAR(255), plan VARCHAR(255), referrer VARCHAR(255) )' ;
   connection.query(sql, (err, result) => { 
@@ -98,6 +111,12 @@ app.get('/db-setup', (req, res) => {
       console.log('result:', result)
   })
 
+  var sql = 'CREATE TABLE IF NOT EXISTS transactions (id INT AUTO_INCREMENT PRIMARY KEY, regTime TIME DEFAULT CURRENT_TIME, regDate DATE DEFAULT CURRENT_DATE, user VARCHAR(255), agent VARCHAR (255), amount VARCHAR(255))'
+  connection.query(sql, (err, result) => { 
+    if (err) throw err
+      console.log('result:', result)
+  })
+
   connection.end();
 })
 
@@ -133,6 +152,41 @@ app.get('/subscription', (req, res) => {
   res.sendFile(filePath);
 });
 
+
+
+ // Login route
+ app.post('/login', (req, res) => {   
+  const phone = req.body.phone;
+  const password = req.body.password;
+  const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+  connection.query('SELECT * FROM customers', (err, results) => {
+    if (err) throw err;
+    const user = results.find((result) => {
+      return result.phoneNumber == phone && result.password == hashedPassword;
+     });
+     if (user) {
+       // console.log(user);
+       req.session.user = user;
+       req.session.save()
+       res.cookie('user', user.phoneNumber)
+       const mycookie = req.cookies.user //code to retrieve cookie
+       res.redirect('/dashboard')
+       
+     } else{
+         if (phone === '08018681' && password === '1985-12-03') {
+           req.session.user = 'superAdmin';
+           req.session.save()
+           res.redirect('/admin')
+         }else{
+           res.send('Bad Credentials: incorrect email or password')
+          }
+
+       } 
+  })
+});
+
+
+
 app.post('/agent-login', (req, res) => {   
   const {email, password} = req.body
   connection.query('SELECT * FROM agents', (err, results) => {
@@ -142,16 +196,20 @@ app.post('/agent-login', (req, res) => {
     })
     if (agent) {
       var agentName = agent.name;
-      res.render('vendorDashboard', {agentName})
+      connection.query(`SELECT * FROM transactions WHERE agent = '${agentName}'`, (err, transactions) => {
+        if (err) throw err
+        //var transactions = transactions1[0]
+        res.render('vendorDashboard', {agentName, transactions})
+      })
     } else {
       res.send('Bad Credentials: incorrect email or password')
     }
   })
 })
 
+
 app.post('/existing-customer', (req, res) => {
   var {firstName, middleName, lastName, email, dob, gender, phone, accountEx, model, referrer, brand, color, worth, plan, address} = req.body
-console.log(req.body);
   //logic to convert date to required format
   function convertDate(inputDate) {
     // Parse the input date (assuming yyyy-mm-dd format)
@@ -493,7 +551,6 @@ app.post('/customer-signup', (req, res) => {
       response2.on('end', () => {
         var newAccountDetails = JSON.parse(data2);
         accountNumber = newAccountDetails.account
-        console.log(accountNumber);
         addUserToDatabase(accountNumber)
       })
     })
@@ -681,40 +738,10 @@ app.post('/customer-signup', (req, res) => {
 })
 
 
- // Login route
- app.post('/login', (req, res) => {   
-   const phone = req.body.phone;
-   const password = req.body.password;
-   const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-   connection.query('SELECT * FROM customers', (err, results) => {
-     if (err) throw err;
-     const user = results.find((result) => {
-       return result.phoneNumber == phone && result.password == hashedPassword;
-      });
-      if (user) {
-        // console.log(user);
-        req.session.user = user;
-        req.session.save()
-        res.cookie('user', user.phoneNumber)
-        const mycookie = req.cookies.user //code to retrieve cookie
-        res.redirect('/dashboard')
-        
-      } else{
-          if (phone === '09063469709' && password === '1985-12-03') {
-            req.session.user = 'superAdmin';
-            req.session.save()
-            res.redirect('/admin')
-          }else{
-            res.send('Bad Credentials: incorrect email or password')
-           }
-
-        } 
-   })
-});
 
 app.get('/admin', async (req, res) => {
   try {
-    var [customers, agents, agentRequest] = await Promise.all([getCustomers(), getAgents(), getAgentRequests()]);
+    var [customers, agents, agentRequest, transactions] = await Promise.all([getCustomers(), getAgents(), getAgentRequests(), getTransactions()]);
     if (agentRequest.length === 0) {
       agentRequest = 'No data'
     }
@@ -727,7 +754,12 @@ app.get('/admin', async (req, res) => {
       customers = 'No data'
     }
 
-    res.render('admin', { customers, agents, agentRequest });
+    if (transactions.length === 0) {
+      transactions = 'No data'
+    }
+
+
+    res.render('admin', { customers, agents, agentRequest, transactions });
    
   } catch (error) {
     console.error(error);
@@ -735,6 +767,20 @@ app.get('/admin', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+
+function getTransactions() {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT * FROM transactions', (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
 
 function getCustomers() {
   return new Promise((resolve, reject) => {
@@ -873,6 +919,7 @@ app.post('/add-plan', (req, res) => {
 app.post('/fund-wallet', (req, res) => {
   let acctId = req.body.acctNo
   let phone = req.body.phone
+  let agent = req.body.agent
 
   tokenGenerator()
   function tokenGenerator() {
@@ -940,7 +987,6 @@ app.post('/fund-wallet', (req, res) => {
 
       response.on('end', function() {
         var recievedBalance = JSON.parse(data).balance
-        console.log(recievedBalance);
         debitBalance(token, recievedBalance, acctId)
       });
     }
@@ -980,7 +1026,6 @@ app.post('/fund-wallet', (req, res) => {
                 data += chunk;
             });
             res.on('end', () => {
-                console.log(data); // Log the response data
                 var parsedData = JSON.parse(data)
                 console.log(parsedData);
                 responseToClient(parsedData, acctId, receivedBalance)
@@ -1004,12 +1049,17 @@ app.post('/fund-wallet', (req, res) => {
     
     function responseToClient(parsedData, acctId, receivedBalance) {
       if (parsedData.status == "Approved") {
-        console.log('fund1')
-        var sql = `UPDATE plans_table SET balance = '${receivedBalance}' WHERE user = '${phone}' `;
+        var sql = `UPDATE plans_table SET balance = '${receivedBalance}' WHERE user = ${phone} `;
         connection.query(sql, (err, result) =>{
-          console.log('fund2')
           if (err) throw err;
         })
+
+        var sql = `INSERT INTO transactions (user, agent, amount) VALUES (?, ?, ?)`
+        var values = [phone, agent, receivedBalance]
+        connection.query(sql, values, (err, result) => {
+          if (err) throw err
+        })
+
         resObj.status(200)
         resObj.json({ message: 'Success!', data: { someKey: 'someValue' } })
       }else{
@@ -1212,6 +1262,413 @@ app.post('/disable-subscription-month-purchase', (req, res) => {
     }
   })
 })
+
+
+
+// Route to export data to Excel
+app.get('/export', (req, res) => {
+  var type = req.query.type
+  switch (type) {
+    case 'customers':
+      getCustomersWorksheet();
+      break;
+
+    case 'agents':
+      getAgentsWorksheet();
+      break;
+
+    case 'repair':
+      getRepairWorksheet()
+      break;
+
+    case 'theft':
+      getTheftWorksheet()
+      break;
+
+    case 'purchase':
+      getPurchaseWorksheet()
+      break;
+
+    case 'transactions':
+      getTransactionsWorksheet()
+      break;
+  
+    default:
+      res.send('Data not found')
+      break;
+  }
+
+  function getTransactionsWorksheet() {
+    const query = 'SELECT * FROM transactions';
+
+    connection.query(query, (err, rows) => {
+      if (err) {
+        console.error('Error querying MySQL: ', err);
+        res.status(500).send('Internal Server Error');
+        return;
+      }
+  
+      // Create a new Excel workbook
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('transactions');
+  
+      // Add data to the worksheet
+      worksheet.columns = [
+        { header: 'ID', key: 'id' },
+        { header: 'Time of Trans.', key: 'regTime'},
+        { header: 'Date of Trans.', key: 'regDate' },
+        { header: 'Amount', key: 'amount' },
+        { header: 'Customer Phone Number', key: 'user' },
+        { header: 'Agent', key: 'agent' },
+      ];
+  
+      rows.forEach(row => {
+        worksheet.addRow(row);
+      });
+  
+      // Save workbook to a file
+      const filePath = path.join(__dirname, 'transactions.xlsx');
+      workbook.xlsx.writeFile(filePath)
+        .then(() => {
+          console.log('Excel file created successfully');
+          // Send the Excel file to the client for download
+          res.download(filePath, 'transactions.xlsx', err => {
+            if (err) {
+              console.error('Error sending file: ', err);
+              res.status(500).send('Internal Server Error');
+            }
+            // Delete the file after sending
+            fs.unlink(filePath, err => {
+              if (err) {
+                console.error('Error deleting file: ', err);
+              }
+              console.log('File deleted successfully');
+            });
+          });
+        })
+        .catch(err => {
+          console.error('Error creating Excel file: ', err);
+          res.status(500).send('Internal Server Error');
+        });
+    });
+  }
+
+  function getCustomersWorksheet() {
+    const query = 'SELECT * FROM customers';
+
+    connection.query(query, (err, rows) => {
+      if (err) {
+        console.error('Error querying MySQL: ', err);
+        res.status(500).send('Internal Server Error');
+        return;
+      }
+  
+      // Create a new Excel workbook
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Customers');
+  
+      // Add data to the worksheet
+      worksheet.columns = [
+        { header: 'ID', key: 'id' },
+        { header: 'First Name', key: 'firstName'},
+        { header: 'Middle Name', key: 'middleName' },
+        { header: 'Last Name', key: 'lastName' },
+        { header: 'Gender', key: 'gender' },
+        { header: 'Date of Birth', key: 'dob' },
+        { header: 'Email', key: 'email' },
+        { header: 'Phone Number', key: 'lastName' },
+        { header: 'Account Number', key: 'accountNumber' },
+        { header: 'First Plan Subscribed', key: 'plan' },
+        { header: 'Worth', key: 'phoneWorth' },
+        { header: 'Brand', key: 'phoneBrand' },
+        { header: 'Color', key: 'phoneColor' },
+        { header: 'Customer Address', key: 'address' },
+        { header: 'Referrer', key: 'referrer' },
+      ];
+  
+      rows.forEach(row => {
+        worksheet.addRow(row);
+      });
+  
+      // Save workbook to a file
+      const filePath = path.join(__dirname, 'customers.xlsx');
+      workbook.xlsx.writeFile(filePath)
+        .then(() => {
+          console.log('Excel file created successfully');
+          // Send the Excel file to the client for download
+          res.download(filePath, 'customers.xlsx', err => {
+            if (err) {
+              console.error('Error sending file: ', err);
+              res.status(500).send('Internal Server Error');
+            }
+            // Delete the file after sending
+            fs.unlink(filePath, err => {
+              if (err) {
+                console.error('Error deleting file: ', err);
+              }
+              console.log('File deleted successfully');
+            });
+          });
+        })
+        .catch(err => {
+          console.error('Error creating Excel file: ', err);
+          res.status(500).send('Internal Server Error');
+        });
+    });
+  }
+
+  function getAgentsWorksheet() {
+    const query = 'SELECT * FROM agents';
+
+    connection.query(query, (err, rows) => {
+      if (err) {
+        console.error('Error querying MySQL: ', err);
+        res.status(500).send('Internal Server Error');
+        return;
+      }
+  
+      // Create a new Excel workbook
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('agents');
+  
+      // Add data to the worksheet
+      worksheet.columns = [
+        { header: 'ID', key: 'id' },
+        { header: 'Name', key: 'name'},
+        { header: 'Email', key: 'email' },
+        { header: 'Phone Number', key: 'phone' },
+        { header: 'Date of Birth', key: 'password' },
+        { header: 'Agent Address', key: 'address' },
+        { header: 'Gender', key: 'gender' },
+        { header: 'Agency', key: 'agency' },
+      ];
+  
+      rows.forEach(row => {
+        worksheet.addRow(row);
+      });
+  
+      // Save workbook to a file
+      const filePath = path.join(__dirname, 'agents.xlsx');
+      workbook.xlsx.writeFile(filePath)
+        .then(() => {
+          console.log('Excel file created successfully');
+          // Send the Excel file to the client for download
+          res.download(filePath, 'agents.xlsx', err => {
+            if (err) {
+              console.error('Error sending file: ', err);
+              res.status(500).send('Internal Server Error');
+            }
+            // Delete the file after sending
+            fs.unlink(filePath, err => {
+              if (err) {
+                console.error('Error deleting file: ', err);
+              }
+              console.log('File deleted successfully');
+            });
+          });
+        })
+        .catch(err => {
+          console.error('Error creating Excel file: ', err);
+          res.status(500).send('Internal Server Error');
+        });
+    });
+  }
+ 
+  function getRepairWorksheet() {
+    const query = 'SELECT * FROM repair_subscriptions';
+
+    connection.query(query, (err, rows) => {
+      if (err) {
+        console.error('Error querying MySQL: ', err);
+        res.status(500).send('Internal Server Error');
+        return;
+      }
+  
+      // Create a new Excel workbook
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('repair');
+  
+      // Add data to the worksheet
+      worksheet.columns = [
+        { header: 'ID', key: 'id' },
+        { header: 'Phone', key: 'user'},
+        { header: 'Email', key: 'email' },
+        { header: 'January', key: 'January' },
+        { header: 'February', key: 'February' },
+        { header: 'March', key: 'March' },
+        { header: 'April', key: 'April' },
+        { header: 'May', key: 'May' },
+        { header: 'June', key: 'June' },
+        { header: 'July', key: 'July' },
+        { header: 'August', key: 'August' },
+        { header: 'September', key: 'September' },
+        { header: 'October', key: 'October' },
+        { header: 'November', key: 'November' },
+        { header: 'December', key: 'December' },
+      ];
+  
+      rows.forEach(row => {
+        worksheet.addRow(row);
+      });
+  
+      // Save workbook to a file
+      const filePath = path.join(__dirname, 'repair.xlsx');
+      workbook.xlsx.writeFile(filePath)
+        .then(() => {
+          console.log('Excel file created successfully');
+          // Send the Excel file to the client for download
+          res.download(filePath, 'repair.xlsx', err => {
+            if (err) {
+              console.error('Error sending file: ', err);
+              res.status(500).send('Internal Server Error');
+            }
+            // Delete the file after sending
+            fs.unlink(filePath, err => {
+              if (err) {
+                console.error('Error deleting file: ', err);
+              }
+              console.log('File deleted successfully');
+            });
+          });
+        })
+        .catch(err => {
+          console.error('Error creating Excel file: ', err);
+          res.status(500).send('Internal Server Error');
+        });
+    });
+  }
+
+  function getTheftWorksheet() {
+    const query = 'SELECT * FROM theft_subscriptions';
+
+    connection.query(query, (err, rows) => {
+      if (err) {
+        console.error('Error querying MySQL: ', err);
+        res.status(500).send('Internal Server Error');
+        return;
+      }
+  
+      // Create a new Excel workbook
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('theft');
+  
+      // Add data to the worksheet
+      worksheet.columns = [
+        { header: 'ID', key: 'id' },
+        { header: 'Phone', key: 'user'},
+        { header: 'Email', key: 'email' },
+        { header: 'January', key: 'January' },
+        { header: 'February', key: 'February' },
+        { header: 'March', key: 'March' },
+        { header: 'April', key: 'April' },
+        { header: 'May', key: 'May' },
+        { header: 'June', key: 'June' },
+        { header: 'July', key: 'July' },
+        { header: 'August', key: 'August' },
+        { header: 'September', key: 'September' },
+        { header: 'October', key: 'October' },
+        { header: 'November', key: 'November' },
+        { header: 'December', key: 'December' },
+      ];
+  
+      rows.forEach(row => {
+        worksheet.addRow(row);
+      });
+  
+      // Save workbook to a file
+      const filePath = path.join(__dirname, 'theft.xlsx');
+      workbook.xlsx.writeFile(filePath)
+        .then(() => {
+          console.log('Excel file created successfully');
+          // Send the Excel file to the client for download
+          res.download(filePath, 'theft.xlsx', err => {
+            if (err) {
+              console.error('Error sending file: ', err);
+              res.status(500).send('Internal Server Error');
+            }
+            // Delete the file after sending
+            fs.unlink(filePath, err => {
+              if (err) {
+                console.error('Error deleting file: ', err);
+              }
+              console.log('File deleted successfully');
+            });
+          });
+        })
+        .catch(err => {
+          console.error('Error creating Excel file: ', err);
+          res.status(500).send('Internal Server Error');
+        });
+    });
+  }
+
+  function getPurchaseWorksheet() {
+    const query = 'SELECT * FROM purchase_subscriptions';
+
+    connection.query(query, (err, rows) => {
+      if (err) {
+        console.error('Error querying MySQL: ', err);
+        res.status(500).send('Internal Server Error');
+        return;
+      }
+  
+      // Create a new Excel workbook
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('purchase');
+  
+      // Add data to the worksheet
+      worksheet.columns = [
+        { header: 'ID', key: 'id' },
+        { header: 'Phone', key: 'user'},
+        { header: 'Email', key: 'email' },
+        { header: 'January', key: 'January' },
+        { header: 'February', key: 'February' },
+        { header: 'March', key: 'March' },
+        { header: 'April', key: 'April' },
+        { header: 'May', key: 'May' },
+        { header: 'June', key: 'June' },
+        { header: 'July', key: 'July' },
+        { header: 'August', key: 'August' },
+        { header: 'September', key: 'September' },
+        { header: 'October', key: 'October' },
+        { header: 'November', key: 'November' },
+        { header: 'December', key: 'December' },
+      ];
+  
+      rows.forEach(row => {
+        worksheet.addRow(row);
+      });
+  
+      // Save workbook to a file
+      const filePath = path.join(__dirname, 'purchase.xlsx');
+      workbook.xlsx.writeFile(filePath)
+        .then(() => {
+          console.log('Excel file created successfully');
+          // Send the Excel file to the client for download
+          res.download(filePath, 'purchase.xlsx', err => {
+            if (err) {
+              console.error('Error sending file: ', err);
+              res.status(500).send('Internal Server Error');
+            }
+            // Delete the file after sending
+            fs.unlink(filePath, err => {
+              if (err) {
+                console.error('Error deleting file: ', err);
+              }
+              console.log('File deleted successfully');
+            });
+          });
+        })
+        .catch(err => {
+          console.error('Error creating Excel file: ', err);
+          res.status(500).send('Internal Server Error');
+        });
+    });
+  }
+  
+});
+
+
 
 app.listen(3000, () => {
   console.log('Listening at port 3000...');
