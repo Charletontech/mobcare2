@@ -109,15 +109,7 @@ app.get('/db-setup', (req, res) => {
   })
 
   
-  connection.query('ALTER TABLE customers ADD regTime TIME DEFAULT CURRENT_TIME', (err, result) => { 
-      if (err) throw err
-        console.log('result:', result)
-    })
-
-    connection.query('ALTER TABLE customers ADD  regDate DATE DEFAULT CURRENT_DATE', (err, result) => { 
-      if (err) throw err
-        console.log('result:', result)
-    })
+  
 
   connection.end();
 })
