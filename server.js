@@ -52,15 +52,6 @@ app.get('/db-setup', (req, res) => {
       console.log('connected to database ' +  connection.threadId) 
   })
   
-  connection.query('ALTER TABLE customers ADD regTime TIME DEFAULT CURRENT_TIME', (err, result) => { 
-      if (err) throw err
-        console.log('result:', result)
-    })
-
-    connection.query('ALTER TABLE customers ADD  regDate DATE DEFAULT CURRENT_DATE', (err, result) => { 
-      if (err) throw err
-        console.log('result:', result)
-    })
   
     
   var sql = 'CREATE TABLE IF NOT EXISTS customers (id INT AUTO_INCREMENT PRIMARY KEY,  accountNumber VARCHAR(20), firstName VARCHAR(255), middleName VARCHAR(255), lastName VARCHAR(255), gender VARCHAR(255),  dob VARCHAR(255), email VARCHAR(255),  phoneNumber VARCHAR(255), password VARCHAR(255), phoneWorth VARCHAR(255), phoneModel VARCHAR(255), phoneBrand VARCHAR(255), phoneColor VARCHAR(255), address VARCHAR(255), plan VARCHAR(255), referrer VARCHAR(255) )' ;
@@ -116,6 +107,17 @@ app.get('/db-setup', (req, res) => {
     if (err) throw err
       console.log('result:', result)
   })
+
+  
+  connection.query('ALTER TABLE customers ADD regTime TIME DEFAULT CURRENT_TIME', (err, result) => { 
+      if (err) throw err
+        console.log('result:', result)
+    })
+
+    connection.query('ALTER TABLE customers ADD  regDate DATE DEFAULT CURRENT_DATE', (err, result) => { 
+      if (err) throw err
+        console.log('result:', result)
+    })
 
   connection.end();
 })
@@ -173,7 +175,7 @@ app.get('/subscription', (req, res) => {
        res.redirect('/dashboard')
        
      } else{
-         if (phone === '08018681' && password === '1985-12-03') {
+         if (phone === '09063469709' && password === process.env.ADMIN_PASS) {
            req.session.user = 'superAdmin';
            req.session.save()
            res.redirect('/admin')
