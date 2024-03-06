@@ -74,8 +74,8 @@
                                 <%  for (var each of  transactions) {  %>
                                     <tr>
                                         <td><%= each.id %></td>
-                                        <td><%= each.regTime %></td>
-                                        <td><%= new Date(each.regDate).toLocaleDateString() %></td>
+                                        <td><%= each.time %></td>
+                                        <td><%= each.date %></td>
                                         <td><%= each.user %></td>
                                         <td>&#8358; <%= each.amount %></td>
                                     </tr>
