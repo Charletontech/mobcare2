@@ -227,8 +227,9 @@ app.post('/existing-customer', (req, res) => {
   //Logic to add user to database
   addUserToDatabase(accountEx)
   function addUserToDatabase(accountEx) {
-    var sql = `INSERT INTO customers (firstName, middleName, lastName, accountNumber, gender,  dob, email,  phoneNumber, password, phoneWorth, phoneModel, phoneBrand, phoneColor, address, plan, referrer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    var values = [firstName, middleName, lastName, accountEx,  gender,  dob, email, phone, hashedPassword, worth, model,  brand, color, address,  plan,  referrer]
+     var date = new Date().getDate() + '/' + new Date().getMonth() + '/' + new Date().getFullYear()
+    var sql = `INSERT INTO customers (time, firstName, middleName, lastName, accountNumber, gender,  dob, email,  phoneNumber, password, phoneWorth, phoneModel, phoneBrand, phoneColor, address, plan, referrer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    var values = [date, firstName, middleName, lastName, accountEx,  gender,  dob, email, phone, hashedPassword, worth, model,  brand, color, address,  plan,  referrer]
     connection.query(sql, values, (err, result1) => { 
       if (err) throw err
     })
@@ -557,18 +558,9 @@ app.post('/customer-signup', (req, res) => {
 
   //LOGIC TO ADD USER TO DATABASE
   function addUserToDatabase(acctNoParam) {
-    //logic to format time
-        let x = new Date().getHours()
-        let mins = new Date().getMinutes()
-        if ( x > 12) {
-          x -= 12
-          x += `:${mins}pm`
-        } else {
-          x += `:${mins}am`
-        }
-         //logic to format time ends
+     var date = new Date().getDate() + '/' + new Date().getMonth() + '/' + new Date().getFullYear()
     var sql = `INSERT INTO customers (time, firstName, middleName, lastName, accountNumber, gender,  dob, email,  phoneNumber, password, phoneWorth, phoneModel, phoneBrand, phoneColor, address, plan, referrer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    var values = [x, firstName, middleName, lastName, acctNoParam,  gender,  dob, email, phone, hashedPassword, worth, model,  brand, color, address,  plan,  referrer]
+    var values = [date, firstName, middleName, lastName, acctNoParam,  gender,  dob, email, phone, hashedPassword, worth, model,  brand, color, address,  plan,  referrer]
     connection.query(sql, values, (err, result1) => { 
       if (err) throw err
     })
