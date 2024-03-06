@@ -52,9 +52,8 @@ app.get('/db-setup', (req, res) => {
       console.log('connected to database ' +  connection.threadId) 
   })
   
-  
-    
-  var sql = 'CREATE TABLE IF NOT EXISTS customers (id INT AUTO_INCREMENT PRIMARY KEY,  accountNumber VARCHAR(20), firstName VARCHAR(255), middleName VARCHAR(255), lastName VARCHAR(255), gender VARCHAR(255),  dob VARCHAR(255), email VARCHAR(255),  phoneNumber VARCHAR(255), password VARCHAR(255), phoneWorth VARCHAR(255), phoneModel VARCHAR(255), phoneBrand VARCHAR(255), phoneColor VARCHAR(255), address VARCHAR(255), plan VARCHAR(255), referrer VARCHAR(255) )' ;
+
+  var sql = 'CREATE TABLE IF NOT EXISTS customers (id INT AUTO_INCREMENT PRIMARY KEY, dateStamp VARCHAR(20), accountNumber VARCHAR(20), firstName VARCHAR(255), middleName VARCHAR(255), lastName VARCHAR(255), gender VARCHAR(255),  dob VARCHAR(255), email VARCHAR(255),  phoneNumber VARCHAR(255), password VARCHAR(255), phoneWorth VARCHAR(255), phoneModel VARCHAR(255), phoneBrand VARCHAR(255), phoneColor VARCHAR(255), address VARCHAR(255), plan VARCHAR(255), referrer VARCHAR(255) )' ;
   connection.query(sql, (err, result) => { 
     if (err) throw err
       console.log('result:', result)
@@ -102,14 +101,11 @@ app.get('/db-setup', (req, res) => {
       console.log('result:', result)
   })
 
-  var sql = 'CREATE TABLE IF NOT EXISTS transactions (id INT AUTO_INCREMENT PRIMARY KEY, regTime TIME DEFAULT CURRENT_TIME, regDate DATE DEFAULT CURRENT_DATE, user VARCHAR(255), agent VARCHAR (255), amount VARCHAR(255))'
+  var sql = 'CREATE TABLE IF NOT EXISTS transactions (id INT AUTO_INCREMENT PRIMARY KEY, time VARCHAR(20), date VARCHAR(20), user VARCHAR(255), agent VARCHAR(255), amount VARCHAR(255))'
   connection.query(sql, (err, result) => { 
     if (err) throw err
       console.log('result:', result)
   })
-
-  
-  
 
   connection.end();
 })
@@ -1048,8 +1044,21 @@ app.post('/fund-wallet', (req, res) => {
           if (err) throw err;
         })
 
-        var sql = `INSERT INTO transactions (user, agent, amount) VALUES (?, ?, ?)`
-        var values = [phone, agent, receivedBalance]
+        //logic to format time
+        let x = new Date().getHours()
+        let mins = new Date().getMinutes()
+        if ( x > 12) {
+          x -= 12
+          x += `:${mins}pm`
+        } else {
+          x += `:${mins}am`
+        }
+         //logic to format time ends
+
+        var date = new Date().getDate() + '/' + new Date().getMonth() + '/' + new Date().getFullYear()
+         
+        var sql = `INSERT INTO transactions (time, date, user, agent, amount) VALUES (?, ?, ?, ?, ?)`
+        var values = [x, date, phone, agent, receivedBalance]
         connection.query(sql, values, (err, result) => {
           if (err) throw err
         })
