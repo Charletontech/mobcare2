@@ -111,6 +111,9 @@ app.get('/db-setup', (req, res) => {
 })
 
 
+app.get('/zohoverify/verifyforzoho.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'verifyforzoho.html'));
+});
 
 
 app.get('/', (req, res) => {
