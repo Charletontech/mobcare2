@@ -37,26 +37,37 @@
             <h2>Customers</h2>    
         </div>
         <div class="box others" onclick="showPopUp(verifyAgentPopUp)">
-            <span class="material-symbols-outlined">
+            <!-- <span class="material-symbols-outlined">
                 person_add
-                </span>
+                </span> -->
             <h2>Verify Agents</h2>
         </div>
         <div class="box others" onclick="showPopUp(approvedAgentPopUp)">
-            <p> <span class="material-symbols-outlined">
+            <!-- <p> <span class="material-symbols-outlined">
                 person_check
-                </span></span></p>
+                </span></span></p> -->
             <h2>Approved Agents</h2>
         </div>
+        
+    </section>
+
+    <section class="boxCont">
         <div class="box others" onclick="showPopUp(transactions)">
-            <p style="margin-bottom: 2.4rem; margin-left: -1rem; margin-top: 1rem;"> <span class="glyphicon glyphicon-list-alt" style="font-size: 7.5rem;"></span></p>
+            <!-- <p style="margin-bottom: 2.4rem; margin-left: -1rem; margin-top: 1rem;"> <span class="glyphicon glyphicon-list-alt" style="font-size: 7.5rem;"></span></p> -->
             <h2>All Transactions</h2>
         </div>
         <div class="box others ">
-            <p><span class="material-symbols-outlined" onclick="showPopUp(exportPopUp)">
+            <!-- <p><span class="material-symbols-outlined" onclick="showPopUp(exportPopUp)">
                 bar_chart
-                </span></p>
+                </span></p> -->
             <h2>Export Data</h2>
+        </div>
+
+        <div class="box others" onclick="showPopUp(claimReqPopUp)">
+            <!-- <p><span class="material-symbols-outlined" >
+                bar_chart
+                </span></p> -->
+            <h2>Claim Requests</h2>
         </div>
     </section>
 
@@ -186,7 +197,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% if (typeof transactions !== 'No data') { %>
+                        <% if ( transactions !== 'No data') { %>
                             <%  for (var each of  transactions) {  %>
                                 <tr>
                                     <td><%= each.id %></td>
@@ -255,7 +266,66 @@
             </div>        
         </div>
     </section>
-<!-- Export data modal ends -->
+    <!-- Export data modal ends -->
+
+
+     <!-- Requests pop up modal -->
+     <section class="popUp" id="claimReqPopUp" style="width: 100%;">
+        <b style="text-align: right; margin-left: 78%;" class="back" onclick="hidePopUp(claimReqPopUp)"><i class="glyphicon glyphicon-chevron-left"></i> Back</b>
+        <div class="popUpBox" style="position: relative;">
+            <div class="tableCont" style="width: 110%;" id="claimReqTable">
+                <table class="table table-striped">
+                    <thead>
+                        <tr class="bg bg-primary">
+                            <th>Id</th>
+                            <th>Customer Phone</th>
+                            <th>Balance</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (appointments === 'No data') { %>
+                            <tr>
+                                <td>No claim requests yet.</td>
+                            </tr>
+                            <% } else { %>
+                              
+                            <% } %>
+                        <% for (let i = 0; i < appointments.length; i++) { %>
+                            <tr>
+                                <% const each = appointments[i]; %>
+                                <td><%= each.id %></td>
+                                <td><%= each.user %></td>
+                                <td><%= each.balance %> </td>
+                                <td class="showFixDateFormBtn"><button class="btn btn-primary" style="margin: 0;">Fix Date</button></td>
+                            </tr>
+                        <% } %> 
+                    </tbody>
+                </table>
+
+                <div  id="claimReqTooltip" class="fixDateFormCont">
+                    <p onclick="hidePopUp(claimReqTooltip)"><span class="glyphicon glyphicon-remove" ></span></p>
+                    <form action="" id="fixDateForm" onsubmit="return false">
+                        <div class="mb-3">
+                            <label for="user" class="form-label">User</label>
+                            <input type="tel" name="user" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="date" class="form-label">Appointment Date</label>
+                            <input type="date" name="date" class="form-control">
+                        </div>
+
+                        <div style="display: flex; gap: 9px;">
+                            <button type="submit" class="submitFixDateFormBtn btn btn-primary">Set new date</button>
+                            <button type="submit" class="endAppointmentBtn btn btn-success">End appointment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>        
+        </div>
+        </section>
+    <!-- Requests modal ends -->
 
 
     
@@ -264,11 +334,14 @@
         // Get the button and tooltip elements
         const back = document.querySelector('.back')
         const popUp = document.querySelector('.popUp')
+        const fixDateFormCont = document.querySelector('.fixDateFormCont')
         const customerPopUp = document.getElementById('customerPopUp');
+        const claimReqPopUp = document.getElementById('claimReqPopUp');
         const verifyAgentPopUp = document.getElementById('verifyAgentPopUp');
         const approvedAgentPopUp = document.getElementById('approvedAgentPopUp');
         const exportPopUp = document.getElementById('exportPopUp');
         const transactions = document.getElementById('transactions');
+        const claimReqTooltip = document.getElementById('claimReqTooltip');
         
         //logic to show menu
         function showMenu() {
@@ -292,7 +365,83 @@
             param.style.opacity = 0
         }
 
+        // logic to show show appointment form
+        var user;
+        var showFixDateFormBtn = document.querySelectorAll('.showFixDateFormBtn')
+        showFixDateFormBtn.forEach((each) => {
+            each.addEventListener('click', function () {
+            showPopUp(fixDateFormCont)
+            user = this.parentNode.children[1].innerHTML
+            const fixDateForm = document.getElementById('fixDateForm');
+            var userPhoneInput = document.forms['fixDateForm']['user']
+            userPhoneInput.value = user
+        })
+        })
+        
 
+        //logic to submit fix date form
+        var submitFixDateFormBtn = document.querySelector('.submitFixDateFormBtn')
+        submitFixDateFormBtn.addEventListener('click', function () {
+            this.disabled = 'true'
+            this.innerHTML = 'Please wait...'
+            var user = document.forms['fixDateForm']['user'].value
+            var date = document.forms['fixDateForm']['date'].value
+
+            var body = {
+                user: user,
+                date: date
+            }
+
+
+            var fetchOptions = {
+                method: 'POST',
+                body: JSON.stringify(body),
+                headers: new Headers({
+                    'Content-Type': 'application/json; charset=UTF-8'
+                })
+            }
+
+            fetch('/fix-appointment', fetchOptions)
+            .then(res => {
+                if (res.status === 200) {
+                    this.innerHTML = 'Successful!';
+                    submitFixDateFormBtn.disabled = 'false';
+                }else{
+                    this.innerHTML = 'Failed!'
+                    submitFixDateFormBtn.disabled = 'false';
+                }
+            })
+        })
+
+
+        //logic to end appointment
+        var endAppointmentBtn = document.querySelector('.endAppointmentBtn')
+        endAppointmentBtn.addEventListener('click', function () {
+            this.disabled = 'true'
+            this.innerHTML = 'Please wait...'
+            var body = {
+                user: user
+            }
+
+            var fetchOptions = {
+                method: 'POST',
+                body: JSON.stringify(body),
+                headers: new Headers({
+                    'Content-Type': 'application/json; charset=UTF-8'
+                })
+            }
+
+            fetch('/end-appointment', fetchOptions)
+            .then(res => {
+                if (res.status === 200) {
+                    this.innerHTML = 'Appointment ended!'
+                    this.disabled = 'false'
+                }else{
+                    this.innerHTML = 'Failed!'
+                    this.disabled = 'false'
+                }
+            })
+        })
        
 
         //logic for creating local storage
