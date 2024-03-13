@@ -52,7 +52,17 @@ app.get('/db-setup', (req, res) => {
       console.log('connected to database ' +  connection.threadId) 
   })
   
+  connection.query('ALTER TABLE customers ADD regTime TIME DEFAULT CURRENT_TIME', (err, result) => { 
+      if (err) throw err
+        console.log('result:', result)
+    })
 
+    connection.query('ALTER TABLE customers ADD  regDate DATE DEFAULT CURRENT_DATE', (err, result) => { 
+      if (err) throw err
+        console.log('result:', result)
+    })
+  
+    
   var sql = 'CREATE TABLE IF NOT EXISTS customers (id INT AUTO_INCREMENT PRIMARY KEY, dateStamp VARCHAR(20), accountNumber VARCHAR(20), firstName VARCHAR(255), middleName VARCHAR(255), lastName VARCHAR(255), gender VARCHAR(255),  dob VARCHAR(255), email VARCHAR(255),  phoneNumber VARCHAR(255), password VARCHAR(255), phoneWorth VARCHAR(255), phoneModel VARCHAR(255), phoneBrand VARCHAR(255), phoneColor VARCHAR(255), address VARCHAR(255), plan VARCHAR(255), referrer VARCHAR(255) )' ;
   connection.query(sql, (err, result) => { 
     if (err) throw err
@@ -111,9 +121,37 @@ app.get('/db-setup', (req, res) => {
 })
 
 
-app.get('/zohoverify/verifyforzoho.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'verifyforzoho.html'));
+
+app.get('/email-test', (req, res) => {
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.zoho.com', // Outgoing server name
+    port: 465, // Port for SSL
+    secure: true, // Use SSL
+    auth: {
+        user: 'surpport@mobcare.com.ng', // Your Zoho email address
+        pass: 'Hustle.loyalty99' // Your Zoho email password or app-specific password
+    }
 });
+
+
+  //Mail details
+  const mailContent = {
+    from: 'surpport@mobcare.com.ng',
+    to: `ukacharlie@gmail.com`,
+    subject: `IT WORKS!`,
+    text: 'Hey! testing Node.js'
+   }
+
+  //Sending the mail
+  transporter.sendMail(mailContent, (error, info) =>{
+    if (error){
+      console.error('error sending mail', error)
+    }else{
+      console.log('Email sent', info.response)
+     }
+  })
+})
+
 
 
 app.get('/', (req, res) => {
@@ -166,7 +204,7 @@ app.get('/subscription', (req, res) => {
        res.redirect('/dashboard')
        
      } else{
-         if (phone === '09063469709' && password === process.env.ADMIN_PASS) {
+         if (phone === '09063469709' && password === `${process.env.ADMIN_PASS}`) {
            req.session.user = 'superAdmin';
            req.session.save()
            res.redirect('/admin')
@@ -230,9 +268,8 @@ app.post('/existing-customer', (req, res) => {
   //Logic to add user to database
   addUserToDatabase(accountEx)
   function addUserToDatabase(accountEx) {
-     var date = new Date().getDate() + '/' + new Date().getMonth() + '/' + new Date().getFullYear()
-    var sql = `INSERT INTO customers (time, firstName, middleName, lastName, accountNumber, gender,  dob, email,  phoneNumber, password, phoneWorth, phoneModel, phoneBrand, phoneColor, address, plan, referrer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    var values = [date, firstName, middleName, lastName, accountEx,  gender,  dob, email, phone, hashedPassword, worth, model,  brand, color, address,  plan,  referrer]
+    var sql = `INSERT INTO customers (firstName, middleName, lastName, accountNumber, gender,  dob, email,  phoneNumber, password, phoneWorth, phoneModel, phoneBrand, phoneColor, address, plan, referrer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    var values = [firstName, middleName, lastName, accountEx,  gender,  dob, email, phone, hashedPassword, worth, model,  brand, color, address,  plan,  referrer]
     connection.query(sql, values, (err, result1) => { 
       if (err) throw err
     })
@@ -268,21 +305,21 @@ app.post('/existing-customer', (req, res) => {
   //LOGIC TO SEND SIGN UP NOTIFICATION EMAIL TO USER
   function signUpEmailNotification(params) {
     const transporter = nodemailer.createTransport({
-      host: 'smtp.elasticemail.com',
-      port: 2525, // Make sure port is specified as a number (not a string)
-      secure: false, // Set secure as a boolean
+      host: 'smtp.zoho.com', 
+      port: 465, // Port for SSL
+      secure: true, // Use SSL
       auth: {
-        user: 'phoenixdigitalcrest@mail.com',
-        pass: `${process.env.EMAIL_PASS}`,
-      },
-    });
+          user: 'surpport@mobcare.com.ng', 
+          pass: `${process.env.EMAIL_PASS}`,
+      }
+  });
 
   
     //Mail details
     const mailContent = {
-      from: 'phoenixdigitalcrest@mail.com',
+      from: 'surpport@mobcare.com.ng', 
       to: `${email}`,
-      subject: `New user! ${firstName} ${middleName} ${lastName}`,
+      subject: `MOBCARE REGISTRATION SUCCESSFUL!`,
       html: `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -561,9 +598,8 @@ app.post('/customer-signup', (req, res) => {
 
   //LOGIC TO ADD USER TO DATABASE
   function addUserToDatabase(acctNoParam) {
-     var date = new Date().getDate() + '/' + new Date().getMonth() + '/' + new Date().getFullYear()
-    var sql = `INSERT INTO customers (time, firstName, middleName, lastName, accountNumber, gender,  dob, email,  phoneNumber, password, phoneWorth, phoneModel, phoneBrand, phoneColor, address, plan, referrer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    var values = [date, firstName, middleName, lastName, acctNoParam,  gender,  dob, email, phone, hashedPassword, worth, model,  brand, color, address,  plan,  referrer]
+    var sql = `INSERT INTO customers (firstName, middleName, lastName, accountNumber, gender,  dob, email,  phoneNumber, password, phoneWorth, phoneModel, phoneBrand, phoneColor, address, plan, referrer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    var values = [firstName, middleName, lastName, acctNoParam,  gender,  dob, email, phone, hashedPassword, worth, model,  brand, color, address,  plan,  referrer]
     connection.query(sql, values, (err, result1) => { 
       if (err) throw err
     })
@@ -604,21 +640,21 @@ app.post('/customer-signup', (req, res) => {
   //LOGIC TO SEND SIGN UP NOTIFICATION EMAIL TO USER
   function signUpEmailNotification(params) {
     const transporter = nodemailer.createTransport({
-      host: 'smtp.elasticemail.com',
-      port: 2525, // Make sure port is specified as a number (not a string)
-      secure: false, // Set secure as a boolean
+      host: 'smtp.zoho.com', 
+      port: 465, // Port for SSL
+      secure: true, // Use SSL
       auth: {
-        user: 'phoenixdigitalcrest@mail.com',
-        pass: `${process.env.EMAIL_PASS}`,
-      },
-    });
+          user: 'surpport@mobcare.com.ng', 
+          pass: `${process.env.EMAIL_PASS}`,
+      }
+  });
 
   
     //Mail details
     const mailContent = {
-      from: 'phoenixdigitalcrest@mail.com',
+      from: 'surpport@mobcare.com.ng', 
       to: `${email}`,
-      subject: `New user! ${firstName} ${middleName} ${lastName}`,
+      subject: `MOBCARE REGISTRATION SUCCESSFUL!`,
       html: `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -736,7 +772,7 @@ app.post('/customer-signup', (req, res) => {
 
 app.get('/admin', async (req, res) => {
   try {
-    var [customers, agents, agentRequest, transactions] = await Promise.all([getCustomers(), getAgents(), getAgentRequests(), getTransactions()]);
+    var [customers, agents, agentRequest, transactions, appointments] = await Promise.all([getCustomers(), getAgents(), getAgentRequests(), getTransactions(), getClaimRequests()]);
     if (agentRequest.length === 0) {
       agentRequest = 'No data'
     }
@@ -753,8 +789,12 @@ app.get('/admin', async (req, res) => {
       transactions = 'No data'
     }
 
+    if (appointments.length === 0) {
+      appointments = 'No data'
+    }
 
-    res.render('admin', { customers, agents, agentRequest, transactions });
+
+    res.render('admin', { customers, agents, agentRequest, transactions , appointments});
    
   } catch (error) {
     console.error(error);
@@ -814,6 +854,21 @@ function getAgentRequests() {
   });
 }
 
+function getClaimRequests() {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT * FROM plans_table WHERE request = "1" ', (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+
+
+
 
 app.get('/dashboard', (req, res) => {
   var user = req.session.user;
@@ -837,12 +892,20 @@ app.get('/dashboard', (req, res) => {
       if (err) {
           console.error(err);
       } else {
-          if (results2.length === 0) {
-            message = 'You have no appointments yet.'
-            subscriptionChecker(phoneNumber, accountNumber, firstName, lastName, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, message)
-          } else {
-              console.log('Matching results found:', results2);
-          }
+            if (results2.length === 0) {
+              message = `You have no appointments.`
+              subscriptionChecker(phoneNumber, accountNumber, firstName, lastName, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, message)
+            
+            } else {
+              if (results2[0].status === 'undefined' || results2[0].status === 'completed') {
+                message = `You have no pending appointments.`
+                subscriptionChecker(phoneNumber, accountNumber, firstName, lastName, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, message)
+              }else{
+                message = `Your appointment is on ${results2[0].date}.`
+                subscriptionChecker(phoneNumber, accountNumber, firstName, lastName, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, message)
+              }
+            }
+            
       }
   });
 
@@ -868,13 +931,31 @@ app.get('/dashboard', (req, res) => {
   })
 })
 
+
 app.post('/fix-appointment', (req, res) => {
+  const { user, date} = req.body;
   var sql = "INSERT INTO appointments_table  (user, date, status) VALUES (?, ?, ?)";
-      var values = [phone, "Nil", plan, "Nil", 1, "Nil", "Nil"]
+      var values = [user, date, "pending"];
       connection.query(sql, values, (err, result2) => {
         if (err) throw err
+        res.send('ok')
       })
+})
 
+
+app.post('/end-appointment', (req, res) => {
+  const {user} = req.body;
+  var sql = `UPDATE appointments_table  SET status = 'completed' WHERE user = '${user}'`;
+  connection.query(sql, (err, result2) => {
+    if (err) throw err
+      res.sendStatus(200)
+  })
+
+  var sql = `UPDATE plans_table  SET request = '0' WHERE user = '${user}'`;
+    connection.query(sql, (err, result2) => {
+      if (err) throw err
+       res.sendStatus(200)
+  })
 })
 
 
