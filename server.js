@@ -1141,7 +1141,7 @@ app.post('/fund-wallet', (req, res) => {
         }
          //logic to format time ends
 
-        var date = new Date().getDate() + '/' + new Date().getMonth() + '/' + new Date().getFullYear()
+        var date = new Date().getDate() + '/'  + parseFloat(new Date().getMonth() + 1) + '/' + new Date().getFullYear()
          
         var sql = `INSERT INTO transactions (time, date, user, agent, amount) VALUES (?, ?, ?, ?, ?)`
         var values = [x, date, phone, agent, receivedBalance]
