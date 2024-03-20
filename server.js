@@ -1133,6 +1133,11 @@ app.post('/fund-wallet', (req, res) => {
         //logic to format time
         let x = new Date().getHours()
         let mins = new Date().getMinutes()
+
+        if (mins < 10) {
+          mins = `0${mins}`
+        }
+        
         if ( x > 12) {
           x -= 12
           x += `:${mins}pm`
