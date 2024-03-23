@@ -241,15 +241,6 @@ app.post('/agent-login', (req, res) => {
 
 app.post('/existing-customer', (req, res) => {
   var {firstName, middleName, lastName, email, dob, gender, phone, accountEx, model, referrer, brand, color, worth, plan, address} = req.body
-  //logic to convert date to required format
-  function convertDate(inputDate) {
-    // Parse the input date (assuming yyyy-mm-dd format)
-    const parsedDate = new Date(inputDate);
-    // Format the date in the desired format (yyyy-mm-ddTHH:mm:ss.sssZ)
-    const formattedDate = parsedDate.toISOString();
-    return formattedDate;
-  }
-  const convertedDate = convertDate(dob);
 
 
   //LOGIC TO HASH PASSWORD
@@ -268,11 +259,32 @@ app.post('/existing-customer', (req, res) => {
   //Logic to add user to database
   addUserToDatabase(accountEx)
   function addUserToDatabase(accountEx) {
-    var sql = `INSERT INTO customers (firstName, middleName, lastName, accountNumber, gender,  dob, email,  phoneNumber, password, phoneWorth, phoneModel, phoneBrand, phoneColor, address, plan, referrer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    var values = [firstName, middleName, lastName, accountEx,  gender,  dob, email, phone, hashedPassword, worth, model,  brand, color, address,  plan,  referrer]
-    connection.query(sql, values, (err, result1) => { 
-      if (err) throw err
-    })
+     //logic to format time
+       let x = new Date().getHours()
+       let mins = new Date().getMinutes()
+
+       if (mins < 10) {
+         mins = `0${mins}`
+       }
+       
+       if ( x > 12) {
+         x -= 12
+         x += `:${mins}pm`
+       } else {
+         x += `:${mins}am`
+       }
+        //logic to format time ends
+
+       var date = new Date().getDate() + '/'  + parseFloat(new Date().getMonth() + 1) + '/' + new Date().getFullYear()
+
+       var timeDateStamp = `${x}, ${date}`
+        
+      var sql = `INSERT INTO customers (time, firstName, middleName, lastName, accountNumber, gender,  dob, email,  phoneNumber, password, phoneWorth, phoneModel, phoneBrand, phoneColor, address, plan, referrer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      var values = [timeDateStamp, firstName, middleName, lastName, accountEx,  gender,  dob, email, phone, hashedPassword, worth, model,  brand, color, address,  plan,  referrer]
+      connection.query(sql, values, (err, result1) => { 
+        if (err) throw err
+      })
+ 
 
     var sql = "INSERT INTO plans_table (user, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, request) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     var values = [phone, 0, plan, "Nil", 1, "Nil", "Nil", 0]
@@ -598,11 +610,32 @@ app.post('/customer-signup', (req, res) => {
 
   //LOGIC TO ADD USER TO DATABASE
   function addUserToDatabase(acctNoParam) {
-    var sql = `INSERT INTO customers (firstName, middleName, lastName, accountNumber, gender,  dob, email,  phoneNumber, password, phoneWorth, phoneModel, phoneBrand, phoneColor, address, plan, referrer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    var values = [firstName, middleName, lastName, acctNoParam,  gender,  dob, email, phone, hashedPassword, worth, model,  brand, color, address,  plan,  referrer]
-    connection.query(sql, values, (err, result1) => { 
-      if (err) throw err
-    })
+     //logic to format time
+       let x = new Date().getHours()
+       let mins = new Date().getMinutes()
+
+       if (mins < 10) {
+         mins = `0${mins}`
+       }
+       
+       if ( x > 12) {
+         x -= 12
+         x += `:${mins}pm`
+       } else {
+         x += `:${mins}am`
+       }
+        //logic to format time ends
+
+       var date = new Date().getDate() + '/'  + parseFloat(new Date().getMonth() + 1) + '/' + new Date().getFullYear()
+
+       var timeDateStamp = `${x}, ${date}`
+        
+      var sql = `INSERT INTO customers (time, firstName, middleName, lastName, accountNumber, gender,  dob, email,  phoneNumber, password, phoneWorth, phoneModel, phoneBrand, phoneColor, address, plan, referrer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      var values = [timeDateStamp, firstName, middleName, lastName, accountEx,  gender,  dob, email, phone, hashedPassword, worth, model,  brand, color, address,  plan,  referrer]
+      connection.query(sql, values, (err, result1) => { 
+        if (err) throw err
+      })
+ 
 
     var sql = "INSERT INTO plans_table (user, balance, plan1, plan2, numberOfPlans, lastMonthSubscribed1, lastMonthSubscribed2, request) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     var values = [phone, 0, plan, "Nil", 1, "Nil", "Nil", 0]
