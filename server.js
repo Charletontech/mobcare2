@@ -1503,7 +1503,7 @@ app.get('/export', (req, res) => {
         { header: 'Gender', key: 'gender' },
         { header: 'Date of Birth', key: 'dob' },
         { header: 'Email', key: 'email' },
-        { header: 'Phone Number', key: 'lastName' },
+        { header: 'Phone Number', key: 'phoneNumber' },
         { header: 'Account Number', key: 'accountNumber' },
         { header: 'First Plan Subscribed', key: 'plan' },
         { header: 'Worth', key: 'phoneWorth' },
